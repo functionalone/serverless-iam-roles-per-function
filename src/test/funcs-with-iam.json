@@ -1,0 +1,279 @@
+{
+  "service": "test-service",  
+  "provider": {
+    "stage": "dev",
+    "region": "us-east-1",
+    "name": "aws",
+    "runtime": "python2.7",
+    "iamRoleStatements": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "xray:PutTelemetryRecords",
+          "xray:PutTraceSegments"
+        ],
+        "Resource": "*"
+      }
+    ],
+    "versionFunctions": true,
+    "remoteFunctionData": null,
+    "compiledCloudFormationTemplate": {
+      "AWSTemplateFormatVersion": "2010-09-09",
+      "Description": "The AWS CloudFormation template for this Serverless application",
+      "Resources": {
+        "ServerlessDeploymentBucket": {
+          "Type": "AWS::S3::Bucket",
+          "Properties": {
+            "AccelerateConfiguration": {
+              "AccelerationStatus": "Suspended"
+            }
+          }
+        },
+        "HelloLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/test-python-dev-hello"
+          }
+        },
+        "IamRoleLambdaExecution": {
+          "Type": "AWS::IAM::Role",
+          "Properties": {
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Service": [
+                      "lambda.amazonaws.com"
+                    ]
+                  },
+                  "Action": [
+                    "sts:AssumeRole"
+                  ]
+                }
+              ]
+            },
+            "Policies": [
+              {
+                "PolicyName": {
+                  "Fn::Join": [
+                    "-",
+                    [
+                      "dev",
+                      "test-python",
+                      "lambda"
+                    ]
+                  ]
+                },
+                "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "logs:CreateLogStream"
+                      ],
+                      "Resource": [
+                        {
+                          "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/test-python-dev-hello:*"
+                        }
+                      ]
+                    },
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "logs:PutLogEvents"
+                      ],
+                      "Resource": [
+                        {
+                          "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/test-python-dev-hello:*:*"
+                        }
+                      ]
+                    },
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "xray:PutTelemetryRecords",
+                        "xray:PutTraceSegments"
+                      ],
+                      "Resource": "*"
+                    }
+                  ]
+                }
+              }
+            ],
+            "Path": "/",
+            "RoleName": {
+              "Fn::Join": [
+                "-",
+                [
+                  "test-python",
+                  "dev",
+                  "us-east-1",
+                  "lambdaRole"
+                ]
+              ]
+            }
+          }
+        },
+        "HelloInheritLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": {
+                "Ref": "ServerlessDeploymentBucket"
+              },
+              "S3Key": "serverless/test-python/dev/1517233344526-2018-01-29T13:42:24.526Z/test-python.zip"
+            },
+            "FunctionName": "test-python-dev-helloInherit",
+            "Handler": "handler.hello",
+            "MemorySize": 1024,
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            },
+            "Runtime": "python2.7",
+            "Timeout": 6
+          },
+          "DependsOn": [
+            "HelloInheritLogGroup",
+            "IamRoleLambdaExecution"
+          ]
+        },
+        "HelloLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": {
+                "Ref": "ServerlessDeploymentBucket"
+              },
+              "S3Key": "serverless/test-python/dev/1517233344526-2018-01-29T13:42:24.526Z/test-python.zip"
+            },
+            "FunctionName": "test-python-dev-hello",
+            "Handler": "handler.hello",
+            "MemorySize": 1024,
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            },
+            "Runtime": "python2.7",
+            "Timeout": 6
+          },
+          "DependsOn": [
+            "HelloLogGroup",
+            "IamRoleLambdaExecution"
+          ]
+        },
+        "HelloLambdaVersionnJ9Yfm1HjU1A2HFWWfHbwg0iMvO1Ymsf3fPkNKFCIo": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "HelloLambdaFunction"
+            },
+            "CodeSha256": "ZM0KpakJ5w4iceYY+Ox3nIgHSsqfBQw6NKFyaA3jVAc="
+          }
+        }
+      },
+      "Outputs": {
+        "ServerlessDeploymentBucketName": {
+          "Value": {
+            "Ref": "ServerlessDeploymentBucket"
+          }
+        },
+        "HelloLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "HelloLambdaVersionnJ9Yfm1HjU1A2HFWWfHbwg0iMvO1Ymsf3fPkNKFCIo"
+          }
+        }
+      }
+    },
+    "coreCloudFormationTemplate": {
+      "AWSTemplateFormatVersion": "2010-09-09",
+      "Description": "The AWS CloudFormation template for this Serverless application",
+      "Resources": {
+        "ServerlessDeploymentBucket": {
+          "Type": "AWS::S3::Bucket",
+          "Properties": {
+            "AccelerateConfiguration": {
+              "AccelerationStatus": "Suspended"
+            }
+          }
+        }
+      },
+      "Outputs": {
+        "ServerlessDeploymentBucketName": {
+          "Value": {
+            "Ref": "ServerlessDeploymentBucket"
+          }
+        }
+      }
+    },
+    "vpc": {}
+  },
+  "plugins": [
+    "serverless-iam-roles-per-function"
+  ],
+  "functions": {
+    "hello": {
+      "handler": "handler.hello",
+      "iamRoleStatements": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "dynamodb:GetItem"
+          ],
+          "Resource": "arn:aws:dynamodb:us-east-1:*:table/test"
+        }
+      ],
+      "events": [],
+      "name": "test-python-dev-hello",
+      "package": {},
+      "vpc": {}
+    },
+    "helloInherit": {
+      "handler": "handler.hello",
+      "iamRoleStatements": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "dynamodb:GetItem"
+          ],
+          "Resource": "arn:aws:dynamodb:us-east-1:*:table/test"
+        }
+      ],
+      "iamRoleStatementsInherit": true,
+      "events": [],
+      "name": "test-python-dev-hello",
+      "package": {},
+      "vpc": {}
+    }
+  },
+  "resources": {
+    "Resources": {
+      "HelloLambdaFunction": {
+        "Type": "AWS::Lambda::Function",
+        "Properties": {
+          "TracingConfig": {
+            "Mode": "Active"
+          }
+        }
+      }
+    }
+  },
+  "package": {
+    "artifact": "test-service.zip",
+    "exclude": [
+      "node_modules/**",
+      "package-lock.json"
+    ],
+    "artifactDirectoryName": "serverless/test-service/dev/1517233344526-2018-01-29T13:42:24.526Z"
+  },
+  "artifact": "test-service.zip"
+}

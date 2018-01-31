@@ -1,0 +1,24 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {    
+    "strict": true,
+    "noUnusedLocals": true,
+    "outDir": "./dist",
+    "declaration": true,
+    "rootDir": "src",    
+    "target": "es6",
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "sourceMap": true,
+    "newLine": "LF",
+    "lib": [
+      "es6",
+      "es2015.promise",
+      "esnext.asynciterable"
+    ]
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+  ]
+}
