@@ -1,6 +1,5 @@
 # Serverless IAM Roles Per Function Plugin
-
-[![serverless](http://public.serverless.com/badges/v3.svg)](http://www.serverless.com)
+[![serverless][sls-image]][sls-url] [![npm package][npm-image]][npm-url]
 
 A Serverless plugin to easily define IAM roles per function via the use of `iamRoleStatements` at the function definition block. 
 
@@ -15,6 +14,8 @@ Add the plugin to serverless.yml:
 plugins:
   - serverless-iam-roles-per-function
 ```
+
+**Note**: Node 6.10 or higher runtime required.
 
 ## Usage
 
@@ -68,3 +69,8 @@ The generated role for `func1` will contain both the statements defined at the p
 
 
 **Note**: Servless Framework provides support for defining custom IAM roles on a per function level through the use of the `role` property and creating CloudFormation resources, as documented [here](https://serverless.com/framework/docs/providers/aws/guide/iam#custom-iam-roles). This plugin doesn't support defining both the `role` property and `iamRoleStatements` at the function level.
+
+[npm-image]:https://badge.fury.io/js/serverless-iam-roles-per-function.svg
+[npm-url]:http://npmjs.org/package/serverless-iam-roles-per-function
+[sls-image]:http://public.serverless.com/badges/v3.svg
+[sls-url]:http://www.serverless.com
