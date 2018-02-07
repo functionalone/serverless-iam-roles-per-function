@@ -1,12 +1,11 @@
 import * as _ from 'lodash';
-import {validateStatements} from 'serverless/lib/plugins/aws/package/lib/mergeIamTemplates';
 
 class ServerlessIamPerFunctionPlugin {
 
   provider: string;
   hooks: {[i: string]: () => void};
   serverless: any;
-  validateStatements: (statements: any) => void = validateStatements;
+  awsPackagePlugin: any; 
 
   /**
    * 
@@ -20,6 +19,23 @@ class ServerlessIamPerFunctionPlugin {
       'after:package:compileFunctions': this.createRolesPerFunction.bind(this),
     };    
   }
+
+  validateStatements(statements: any): void {
+    const awsPackagePluginName = "AwsPackage";
+    if(!this.awsPackagePlugin) {
+      for (const plugin of this.serverless.pluginManager.plugins) {
+        if(plugin.constructor && plugin.constructor.name === awsPackagePluginName) {
+          this.awsPackagePlugin = plugin;
+          break;
+        }
+      }
+    }
+    if(!this.awsPackagePlugin) {
+      this.serverless.cli.log(`WARNING: could not find ${awsPackagePluginName} plugin to verify statements.`);
+      return;
+    }
+    this.awsPackagePlugin.validateStatements(statements);
+  } 
 
   getFunctionRoleName(functionName: string) {
     const roleName = this.serverless.providers.aws.naming.getRoleName();

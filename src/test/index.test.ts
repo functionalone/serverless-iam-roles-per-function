@@ -2,7 +2,6 @@
 import {assert} from 'chai';
 const Plugin = require('../lib/index');
 const Serverless = require('serverless/lib/Serverless');
-const AwsProvider = require('serverless/lib/plugins/aws/provider/awsProvider');
 const funcWithIamTemplate = require('../../src/test/funcs-with-iam.json');
 
 describe('plugin tests', () => {
@@ -11,13 +10,9 @@ describe('plugin tests', () => {
   let plugin: any;
 
   beforeEach(() => {
-    const options = {
-      stage: 'dev',
-      region: 'us-east-1',
-    };
-    serverless = new Serverless();
-    serverless.setProvider('aws', new AwsProvider(serverless, options));
+    serverless = new Serverless();    
     Object.assign(serverless.service, funcWithIamTemplate);    
+    serverless.pluginManager.loadAllPlugins();
     plugin = new Plugin(serverless);
   });
 
