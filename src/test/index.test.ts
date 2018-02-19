@@ -3,7 +3,7 @@ import {assert} from 'chai';
 const Plugin = require('../lib/index');
 const Serverless = require('serverless/lib/Serverless');
 const funcWithIamTemplate = require('../../src/test/funcs-with-iam.json');
-import * as _ from 'lodash';
+import _ from 'lodash';
 
 describe('plugin tests', () => {
 
