@@ -43,7 +43,7 @@ functions:
 
 The plugin will create a dedicated role for each function that has an `iamRoleStatements` definition. It will include the permissions for create and write to CloudWatch logs and if VPC is defined: `AWSLambdaVPCAccessExecutionRole` will be included (as is done when using `iamRoleStatements` at the provider level).
 
-By deafault, function level `iamRoleStatements` override the provider level definition. It is also possible to inherit the provider level definition by specifying the option `iamRoleStatementsInherit`:
+By deafault, function level `iamRoleStatements` override the provider level definition. It is also possible to inherit the provider level definition by specifying the option `iamRoleStatementsInherit: true`:
 
 ```yaml
 provider:
@@ -66,6 +66,19 @@ functions:
         Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/mytable"
 ```
 The generated role for `func1` will contain both the statements defined at the provider level and the ones defined at the function level.
+
+If you wish to change the default behaviour to `inherit` instead of `override` it is possible to specify the following custom configuration:
+
+```yaml
+custom:
+  serverless-iam-roles-per-function:
+    defaultInherit: true
+```
+
+## More Info
+
+**Introduction post**:
+[Serverless Framework: Defining Per-Function IAM Roles](https://medium.com/@glicht/serverless-framework-defining-per-function-iam-roles-c678fa09f46d)
 
 
 **Note**: Servless Framework provides support for defining custom IAM roles on a per function level through the use of the `role` property and creating CloudFormation resources, as documented [here](https://serverless.com/framework/docs/providers/aws/guide/iam#custom-iam-roles). This plugin doesn't support defining both the `role` property and `iamRoleStatements` at the function level.

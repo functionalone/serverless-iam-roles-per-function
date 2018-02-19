@@ -6,6 +6,7 @@ class ServerlessIamPerFunctionPlugin {
   hooks: {[i: string]: () => void};
   serverless: any;
   awsPackagePlugin: any; 
+  defaultInherit: boolean;
 
   /**
    * 
@@ -18,6 +19,7 @@ class ServerlessIamPerFunctionPlugin {
     this.hooks = {
       'after:package:compileFunctions': this.createRolesPerFunction.bind(this),
     };    
+    this.defaultInherit = _.get(this.serverless.service, "custom.serverless-iam-roles-per-function.defaultInherit", false);
   }
 
   validateStatements(statements: any): void {
@@ -95,7 +97,8 @@ class ServerlessIamPerFunctionPlugin {
         'arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole',
       ];
     } 
-    if(functionObject.iamRoleStatementsInherit && !_.isEmpty(this.serverless.service.provider.iamRoleStatements)) { //add global statements
+    if((functionObject.iamRoleStatementsInherit || (this.defaultInherit && functionObject.iamRoleStatementsInherit !== false)) 
+      && !_.isEmpty(this.serverless.service.provider.iamRoleStatements)) { //add global statements
       for (const s of this.serverless.service.provider.iamRoleStatements) {
         policyStatements.push(s);    
       }
