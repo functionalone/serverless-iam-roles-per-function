@@ -25,6 +25,7 @@ Define `iamRoleStatements` definitions at the function level:
 functions:
   func1:
     handler: handler.get
+    iamRoleStatementsName: my-custom-role-name #optional custom role name setting instead of the default generated one
     iamRoleStatements:
       - Effect: "Allow"        
         Action:
@@ -32,7 +33,7 @@ functions:
         Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/mytable"
     ...
   func2:
-    handler: handler.put
+    handler: handler.put    
     iamRoleStatements:
       - Effect: "Allow"        
         Action:

@@ -64,6 +64,10 @@ describe('plugin tests', () => {
         const roleName = plugin.getFunctionRoleName(name);
         assertFunctionRoleName(name, roleName);
       });
+
+      it('should throw an error on long name', () => {
+        assert.throws(() => {plugin.getFunctionRoleName('long-long-long-long-long-long-long-long-long-long-long-name');});
+      });
     });
 
     describe('#createRolesPerFunction', () => {

@@ -46,6 +46,15 @@ class ServerlessIamPerFunctionPlugin {
       throw new this.serverless.classes.Error("Global Role Name is not in exepcted format. Got name: " + JSON.stringify(roleName));
     }
     fnJoin[1].splice(2, 0, functionName);
+    let length=0; //calculate the expected length. Sum the lenght of each part
+    for (const part of fnJoin[1]) {
+      length += part.length;
+    }
+    length += (fnJoin[1].length - 1); //take into account the dashes between parts
+    if(length > 64) { //aws limits to 64 chars the role name
+      throw new this.serverless.classes.Error(`auto generated role name for function: ${functionName} is too long (over 64 chars).
+        Try setting a custom role name using the property: iamRoleStatementsName.`);
+    }
     return roleName;
   }
 
@@ -107,7 +116,7 @@ class ServerlessIamPerFunctionPlugin {
     for (const s of functionObject.iamRoleStatements) {
       policyStatements.push(s);    
     }        
-    functionIamRole.Properties.RoleName = this.getFunctionRoleName(functionName);    
+    functionIamRole.Properties.RoleName = functionObject.iamRoleStatementsName || this.getFunctionRoleName(functionName);
     const roleResourceName = this.serverless.providers.aws.naming.getNormalizedFunctionName(functionName) + globalRoleName;
     this.serverless.service.provider.compiledCloudFormationTemplate.Resources[roleResourceName] = functionIamRole;    
     this.updateFunctionResourceRole(functionName, roleResourceName, globalRoleName);    
