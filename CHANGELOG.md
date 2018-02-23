@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.1.4"></a>
+## [0.1.4](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v0.1.3...v0.1.4) (2018-02-23)
+
+
+### Bug Fixes
+
+* support for stream based event sources (issue [#3](https://github.com/functionalone/serverless-iam-roles-per-function/issues/3)) ([3b63d49](https://github.com/functionalone/serverless-iam-roles-per-function/commit/3b63d49))
+
+
+
 <a name="0.1.3"></a>
 ## [0.1.3](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v0.1.2...v0.1.3) (2018-02-20)
 
