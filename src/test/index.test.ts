@@ -1,6 +1,6 @@
 // tslint:disable:no-var-requires
 import {assert} from 'chai';
-const Plugin = require('../lib/index');
+import Plugin from '../lib/index';
 const Serverless = require('serverless/lib/Serverless');
 const funcWithIamTemplate = require('../../src/test/funcs-with-iam.json');
 import _ from 'lodash';
@@ -82,9 +82,15 @@ describe('plugin tests', () => {
         assert.equal(helloFunctionResource.Properties.Role["Fn::GetAtt"][0], 'HelloIamRoleLambdaExecution', "function resource role is set properly"); 
         const helloInheritRole = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloInheritIamRoleLambdaExecution;
         assertFunctionRoleName('helloInherit', helloInheritRole.Properties.RoleName);
-        const statements: any[] = helloInheritRole.Properties.Policies[0].PolicyDocument.Statement;
+        let statements: any[] = helloInheritRole.Properties.Policies[0].PolicyDocument.Statement;
         assert.isObject(statements.find((s) => s.Action[0] === "xray:PutTelemetryRecords"), 'global statements imported upon inherit');
         assert.isObject(statements.find((s) => s.Action[0] === "dynamodb:GetItem"), 'per function statements imported upon inherit');
+        const streamHandlerRole = serverless.service.provider.compiledCloudFormationTemplate.Resources.StreamHandlerIamRoleLambdaExecution;
+        assertFunctionRoleName('streamHandler', streamHandlerRole.Properties.RoleName);
+        statements = streamHandlerRole.Properties.Policies[0].PolicyDocument.Statement;
+        assert.isObject(statements.find((s) => s.Action[0] === "dynamodb:GetRecords"), 'stream statements included');   
+        const streamMapping = serverless.service.provider.compiledCloudFormationTemplate.Resources.StreamHandlerEventSourceMappingDynamodbTest;
+        assert.equal(streamMapping.DependsOn, "StreamHandlerIamRoleLambdaExecution");
       });
     });
   });

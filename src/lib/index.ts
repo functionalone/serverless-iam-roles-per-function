@@ -1,5 +1,11 @@
 import _ from 'lodash';
 
+interface Statement {
+  Effect: "Allow" | "Deny";
+  Action: string | string[];
+  Resource: string | any[];  
+}
+
 class ServerlessIamPerFunctionPlugin {
 
   provider: string;
@@ -58,7 +64,14 @@ class ServerlessIamPerFunctionPlugin {
     return roleName;
   }
 
-  updateFunctionResourceRole(functionName: string, roleName: string, globalRoleName: string) {
+  /**
+   * 
+   * @param functionName 
+   * @param roleName 
+   * @param globalRoleName 
+   * @return the function resource name
+   */
+  updateFunctionResourceRole(functionName: string, roleName: string, globalRoleName: string): string {
     const functionResourceName = this.serverless.providers.aws.naming.getLambdaLogicalId(functionName);
     const functionResource = this.serverless.service.provider.compiledCloudFormationTemplate.Resources[functionResourceName];
     if(_.isEmpty(functionResource) || _.isEmpty(functionResource.Properties) || _.isEmpty(functionResource.Properties.Role) ||
@@ -67,13 +80,70 @@ class ServerlessIamPerFunctionPlugin {
     }
     functionResource.DependsOn = [roleName].concat(functionResource.DependsOn.filter(((val: any) => val !== globalRoleName )));
     functionResource.Properties.Role["Fn::GetAtt"][0] = roleName;
-  } 
+    return functionResourceName;
+  }
+
+  /**
+   * Get the necessary statement permissions if there are stream event sources of dynamo or kinesis. 
+   * @param functionObject 
+   * @return array of statements (possibly empty)
+   */
+  getStreamStatements(functionObject: any) {  
+    const res: any[] = [];  
+    if(!functionObject.events) { //no events
+      return res;
+    }
+    const dynamodbStreamStatement: Statement = {
+      Effect: 'Allow',
+      Action: [
+        'dynamodb:GetRecords',
+        'dynamodb:GetShardIterator',
+        'dynamodb:DescribeStream',
+        'dynamodb:ListStreams',
+      ],
+      Resource: [],
+    };
+    const kinesisStreamStatement: Statement = {
+      Effect: 'Allow',
+      Action: [
+        'kinesis:GetRecords',
+        'kinesis:GetShardIterator',
+        'kinesis:DescribeStream',
+        'kinesis:ListStreams',
+      ],
+      Resource: [],
+    };
+    for (const event of functionObject.events) {
+      if(event.stream) {
+        const streamArn = event.stream.arn || event.stream;
+        const streamType = event.stream.type || streamArn.split(':')[2];
+        switch (streamType) {
+          case 'dynamodb':
+            (dynamodbStreamStatement.Resource as any[]).push(streamArn);  
+            break;
+          case 'kinesis':
+            (kinesisStreamStatement.Resource as any[]).push(streamArn);
+            break;
+          default:
+            throw new this.serverless.classes.Error(`Unsupported stream type: ${streamType} for function: `, functionObject);            
+        }        
+      }
+    }
+    if (dynamodbStreamStatement.Resource.length) {
+      res.push(dynamodbStreamStatement);
+    }
+    if (kinesisStreamStatement.Resource.length) {
+      res.push(kinesisStreamStatement);
+    }
+    return res;
+  }
 
   /**
    * Will check if function has a definition of iamRoleStatements. If so will create a new Role for the function based on these statements.
    * @param functionName 
+   * @param functionToRoleMap - populate the map with a mapping from function resource name to role resource name
    */
-  createRoleForFunction(functionName: string) {
+  createRoleForFunction(functionName: string, functionToRoleMap: Map<string, string>) {
     const functionObject = this.serverless.service.getFunction(functionName);
     if(_.isEmpty(functionObject.iamRoleStatements)) {
       return;
@@ -87,7 +157,7 @@ class ServerlessIamPerFunctionPlugin {
     const globalIamRole = this.serverless.service.provider.compiledCloudFormationTemplate.Resources[globalRoleName];
     const functionIamRole = _.cloneDeep(globalIamRole);
     //remove the statements
-    const policyStatements: any[] = [];
+    const policyStatements: Statement[] = [];
     functionIamRole.Properties.Policies[0].PolicyDocument.Statement = policyStatements;
     //set log statements
     policyStatements[0] = {
@@ -105,7 +175,10 @@ class ServerlessIamPerFunctionPlugin {
       functionIamRole.Properties.ManagedPolicyArns = [
         'arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole',
       ];
-    } 
+    }    
+    for (const s of this.getStreamStatements(functionObject)) { //set stream statements (if needed)
+      policyStatements.push(s);
+    }
     if((functionObject.iamRoleStatementsInherit || (this.defaultInherit && functionObject.iamRoleStatementsInherit !== false)) 
       && !_.isEmpty(this.serverless.service.provider.iamRoleStatements)) { //add global statements
       for (const s of this.serverless.service.provider.iamRoleStatements) {
@@ -119,7 +192,28 @@ class ServerlessIamPerFunctionPlugin {
     functionIamRole.Properties.RoleName = functionObject.iamRoleStatementsName || this.getFunctionRoleName(functionName);
     const roleResourceName = this.serverless.providers.aws.naming.getNormalizedFunctionName(functionName) + globalRoleName;
     this.serverless.service.provider.compiledCloudFormationTemplate.Resources[roleResourceName] = functionIamRole;    
-    this.updateFunctionResourceRole(functionName, roleResourceName, globalRoleName);    
+    const functionResourceName = this.updateFunctionResourceRole(functionName, roleResourceName, globalRoleName);
+    functionToRoleMap.set(functionResourceName, roleResourceName);
+  }
+
+  /**
+   * Go over each EventSourceMapping and if it is for a function with a function level iam role then adjust the DependsOn
+   * @param functionToRoleMap 
+   */
+  setEventSourceMappings(functionToRoleMap: Map<string, string>) {
+    for (const mapping of _.values(this.serverless.service.provider.compiledCloudFormationTemplate.Resources)) {
+      if(mapping.Type && mapping.Type === 'AWS::Lambda::EventSourceMapping') {
+        const functionNameFn = _.get(mapping, "Properties.FunctionName.Fn::GetAtt");
+        if(!_.isArray(functionNameFn)) {
+          continue;
+        }
+        const functionName = functionNameFn[0];
+        const roleName = functionToRoleMap.get(functionName);
+        if(roleName) {
+          mapping.DependsOn = roleName;
+        }
+      }
+    }
   }
 
   createRolesPerFunction() {
@@ -127,9 +221,11 @@ class ServerlessIamPerFunctionPlugin {
     if(_.isEmpty(allFunctions)) {
       return;
     }
+    const functionToRoleMap: Map<string, string> = new Map();
     for (const func of allFunctions) {
-      this.createRoleForFunction(func);
-    }    
+      this.createRoleForFunction(func, functionToRoleMap);
+    }
+    this.setEventSourceMappings(functionToRoleMap);
   }
 }
 
