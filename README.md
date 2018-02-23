@@ -44,7 +44,7 @@ functions:
 
 The plugin will create a dedicated role for each function that has an `iamRoleStatements` definition. It will include the permissions for create and write to CloudWatch logs and if VPC is defined: `AWSLambdaVPCAccessExecutionRole` will be included (as is done when using `iamRoleStatements` at the provider level).
 
-By deafault, function level `iamRoleStatements` override the provider level definition. It is also possible to inherit the provider level definition by specifying the option `iamRoleStatementsInherit: true`:
+By default, function level `iamRoleStatements` override the provider level definition. It is also possible to inherit the provider level definition by specifying the option `iamRoleStatementsInherit: true`:
 
 ```yaml
 provider:
@@ -68,7 +68,7 @@ functions:
 ```
 The generated role for `func1` will contain both the statements defined at the provider level and the ones defined at the function level.
 
-If you wish to change the default behaviour to `inherit` instead of `override` it is possible to specify the following custom configuration:
+If you wish to change the default behavior to `inherit` instead of `override` it is possible to specify the following custom configuration:
 
 ```yaml
 custom:
