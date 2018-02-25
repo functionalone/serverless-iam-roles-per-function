@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.1.5"></a>
+## [0.1.5](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v0.1.4...v0.1.5) (2018-02-25)
+
+
+### Bug Fixes
+
+* support for auto adding permissions when sns dlq is used (issue [#5](https://github.com/functionalone/serverless-iam-roles-per-function/issues/5)) ([c4c89d6](https://github.com/functionalone/serverless-iam-roles-per-function/commit/c4c89d6))
+
+
+
 <a name="0.1.4"></a>
 ## [0.1.4](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v0.1.3...v0.1.4) (2018-02-23)
 
