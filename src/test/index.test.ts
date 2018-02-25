@@ -5,7 +5,9 @@ const Serverless = require('serverless/lib/Serverless');
 const funcWithIamTemplate = require('../../src/test/funcs-with-iam.json');
 import _ from 'lodash';
 
-describe('plugin tests', () => {
+describe('plugin tests', function(this: any) {
+
+  this.timeout(15000);
 
   function assertFunctionRoleName(name: string, roleNameObj: any) {
     assert.isArray(roleNameObj['Fn::Join']);
@@ -88,7 +90,8 @@ describe('plugin tests', () => {
         const streamHandlerRole = serverless.service.provider.compiledCloudFormationTemplate.Resources.StreamHandlerIamRoleLambdaExecution;
         assertFunctionRoleName('streamHandler', streamHandlerRole.Properties.RoleName);
         statements = streamHandlerRole.Properties.Policies[0].PolicyDocument.Statement;
-        assert.isObject(statements.find((s) => s.Action[0] === "dynamodb:GetRecords"), 'stream statements included');   
+        assert.isObject(statements.find((s) => s.Action[0] === "dynamodb:GetRecords"), 'stream statements included');
+        assert.isObject(statements.find((s) => s.Action[0] === "sns:Publish"), 'sns dlq statements included');   
         const streamMapping = serverless.service.provider.compiledCloudFormationTemplate.Resources.StreamHandlerEventSourceMappingDynamodbTest;
         assert.equal(streamMapping.DependsOn, "StreamHandlerIamRoleLambdaExecution");
       });

@@ -323,6 +323,7 @@
         {"stream": "arn:aws:dynamodb:us-east-1:1234567890:table/test/stream/2017-10-09T19:39:15.151"}
       ],
       "name": "test-python-dev-stream-handler",
+      "onError": "arn:aws:sns:us-east-1:1234567890123:lambda-dlq",
       "package": {},
       "vpc": {}
     }

@@ -179,6 +179,17 @@ class ServerlessIamPerFunctionPlugin {
     for (const s of this.getStreamStatements(functionObject)) { //set stream statements (if needed)
       policyStatements.push(s);
     }
+    // set sns publish for DLQ if needed
+    // currently only sns is supported: https://serverless.com/framework/docs/providers/aws/events/sns#dlq-with-sqs
+    if (!_.isEmpty(functionObject.onError)) { //
+      policyStatements.push({
+        Effect: 'Allow',
+        Action: [
+          'sns:Publish',
+        ],
+        Resource: functionObject.onError,
+      });
+    }
     if((functionObject.iamRoleStatementsInherit || (this.defaultInherit && functionObject.iamRoleStatementsInherit !== false)) 
       && !_.isEmpty(this.serverless.service.provider.iamRoleStatements)) { //add global statements
       for (const s of this.serverless.service.provider.iamRoleStatements) {
