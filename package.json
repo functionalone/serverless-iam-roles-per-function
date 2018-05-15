@@ -32,20 +32,20 @@
     "iam"
   ],
   "dependencies": {
-    "lodash": "^4.17.5"
+    "lodash": "^4.17.10"
   },
   "devDependencies": {
-    "@types/chai": "^4.0.3",
-    "@types/lodash": "^4.14.99",
-    "@types/mocha": "^2.2.48",
-    "@types/node": "^9.4.0",
+    "@types/chai": "^4.1.3",
+    "@types/lodash": "^4.14.108",
+    "@types/mocha": "^5.2.0",
+    "@types/node": "^6.0.110",
     "chai": "^4.1.2",
-    "mocha": "^5.0.1",
+    "mocha": "^5.1.1",
     "rimraf": "^2.6.2",
-    "serverless": "^1.26.0",
+    "serverless": "^1.27.2",
     "standard-version": "^4.3.0",
-    "tslint": "^5.6.0",
-    "typescript": "^2.7.2"
+    "tslint": "^5.10.0",
+    "typescript": "^2.8.3"
   },
   "files": [
     "dist/index.*",
