@@ -4,5 +4,7 @@ node_modules
 dist
 #ignore npm pack output
 serverless-iam-role-per-function-*.tgz
-
-
+#ignore coverage dir
+coverage
+.nyc_output
+npm-debug.log

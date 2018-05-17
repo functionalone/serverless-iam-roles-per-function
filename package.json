@@ -9,8 +9,9 @@
   "main": "dist/lib/index.js",
   "scripts": {
     "clean": "rimraf dist",
-    "test": "mocha   ./dist/test/**/*.test.js",
-    "pretest": "npm run compile",
+    "test-bare": "npm run compile && mocha ./dist/test/**/*.test.js",
+    "test": "nyc mocha --require ts-node/register --require source-map-support/register  ./src/test/**/*.test.ts",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",    
     "compile": "tsc",
     "watch": "tsc -w",
     "prepublishOnly": "npm run clean && npm run compile",
@@ -43,10 +44,14 @@
     "@types/mocha": "^5.2.0",
     "@types/node": "^6.0.110",
     "chai": "^4.1.2",
+    "coveralls": "^3.0.1",
     "mocha": "^5.1.1",
+    "nyc": "^11.8.0",
     "rimraf": "^2.6.2",
     "serverless": "^1.27.2",
+    "source-map-support": "^0.5.6",
     "standard-version": "^4.3.0",
+    "ts-node": "^6.0.3",
     "tslint": "^5.10.0",
     "typescript": "^2.8.3"
   },
@@ -55,5 +60,22 @@
     "dist/lib/**",
     "src/",
     "*.md"
-  ]
+  ],
+  "nyc": {
+    "extension": [
+      ".ts",
+      ".tsx"
+    ],
+    "include": [
+      "src/lib/**"
+    ],
+    "exclude": [
+      "**/*.d.ts"
+    ],
+    "reporter": [
+      "html",
+      "text"
+    ],
+    "all": true
+  }
 }
