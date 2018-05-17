@@ -29,7 +29,10 @@
     "serverless",
     "policy",
     "role",
-    "iam"
+    "iam",
+    "custom",
+    "permissions",
+    "security"
   ],
   "dependencies": {
     "lodash": "^4.17.10"
