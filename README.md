@@ -88,7 +88,7 @@ custom:
 
 **Note**: Serverless Framework provides support for defining custom IAM roles on a per function level through the use of the `role` property and creating CloudFormation resources, as documented [here](https://serverless.com/framework/docs/providers/aws/guide/iam#custom-iam-roles). This plugin doesn't support defining both the `role` property and `iamRoleStatements` at the function level.
 
-[npm-image]:https://badge.fury.io/js/serverless-iam-roles-per-function.svg
+[npm-image]:https://img.shields.io/npm/v/serverless-iam-roles-per-function.svg
 [npm-url]:http://npmjs.org/package/serverless-iam-roles-per-function
 [sls-image]:http://public.serverless.com/badges/v3.svg
 [sls-url]:http://www.serverless.com
