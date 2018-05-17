@@ -1,5 +1,9 @@
 # Serverless IAM Roles Per Function Plugin
-[![serverless][sls-image]][sls-url] [![npm package][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![dependencies Status][david-image]][david-url]
+
+[![serverless][sls-image]][sls-url] 
+[![npm package][npm-image]][npm-url] 
+[![Build Status][travis-image]][travis-url] 
+[![dependencies Status][david-image]][david-url]
 
 A Serverless plugin to easily define IAM roles per function via the use of `iamRoleStatements` at the function definition block. 
 
@@ -88,7 +92,7 @@ custom:
 [npm-url]:http://npmjs.org/package/serverless-iam-roles-per-function
 [sls-image]:http://public.serverless.com/badges/v3.svg
 [sls-url]:http://www.serverless.com
-[travis-image]:https://travis-ci.com/functionalone/serverless-iam-roles-per-function.svg?branch=master
-[travis-url]:https://travis-ci.com/functionalone/serverless-iam-roles-per-function
+[travis-image]:https://travis-ci.org/functionalone/serverless-iam-roles-per-function.svg?branch=master
+[travis-url]:https://travis-ci.org/functionalone/serverless-iam-roles-per-function
 [david-image]:https://david-dm.org/functionalone/serverless-iam-roles-per-function/status.svg
 [david-url]:https://david-dm.org/functionalone/serverless-iam-roles-per-function
