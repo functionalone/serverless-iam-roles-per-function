@@ -23,7 +23,7 @@ class ServerlessIamPerFunctionPlugin {
     this.provider = 'aws';
     this.serverless = serverless;
     this.hooks = {
-      'after:package:compileFunctions': this.createRolesPerFunction.bind(this),
+      'before:package:finalize': this.createRolesPerFunction.bind(this),
     };    
     this.defaultInherit = _.get(this.serverless.service, "custom.serverless-iam-roles-per-function.defaultInherit", false);
   }
@@ -42,8 +42,7 @@ class ServerlessIamPerFunctionPlugin {
       }
     }
     if(!this.awsPackagePlugin) {
-      this.serverless.cli.log(`WARNING: could not find ${awsPackagePluginName} plugin to verify statements.`);
-      return;
+      throw new this.serverless.classes.Error(`ERROR: could not find ${awsPackagePluginName} plugin to verify statements.`);      
     }
     this.awsPackagePlugin.validateStatements(statements);
   } 
@@ -93,7 +92,7 @@ class ServerlessIamPerFunctionPlugin {
    */
   getStreamStatements(functionObject: any) {  
     const res: any[] = [];  
-    if(!functionObject.events) { //no events
+    if(_.isEmpty(functionObject.events)) { //no events
       return res;
     }
     const dynamodbStreamStatement: Statement = {
