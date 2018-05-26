@@ -29,6 +29,9 @@ class ServerlessIamPerFunctionPlugin {
   }
 
   validateStatements(statements: any): void {
+    if(_.isEmpty(statements)) {
+      return;
+    }
     const awsPackagePluginName = "AwsPackage";
     if(!this.awsPackagePlugin) {
       for (const plugin of this.serverless.pluginManager.plugins) {
@@ -145,7 +148,7 @@ class ServerlessIamPerFunctionPlugin {
    */
   createRoleForFunction(functionName: string, functionToRoleMap: Map<string, string>) {
     const functionObject = this.serverless.service.getFunction(functionName);
-    if(_.isEmpty(functionObject.iamRoleStatements)) {
+    if(functionObject.iamRoleStatements === undefined) {
       return;
     }
     if(functionObject.role) {
@@ -197,8 +200,10 @@ class ServerlessIamPerFunctionPlugin {
       }
     }
     //add iamRoleStatements
-    for (const s of functionObject.iamRoleStatements) {
-      policyStatements.push(s);    
+    if(_.isArray(functionObject.iamRoleStatements)) {
+      for (const s of functionObject.iamRoleStatements) {
+        policyStatements.push(s);    
+      }
     }        
     functionIamRole.Properties.RoleName = functionObject.iamRoleStatementsName || this.getFunctionRoleName(functionName);
     const roleResourceName = this.serverless.providers.aws.naming.getNormalizedFunctionName(functionName) + globalRoleName;

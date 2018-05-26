@@ -3,7 +3,7 @@ node_modules
 #dist is only for the package
 dist
 #ignore npm pack output
-serverless-iam-role-per-function-*.tgz
+serverless-iam-roles-per-function-*.tgz
 #ignore coverage dir
 coverage
 .nyc_output
