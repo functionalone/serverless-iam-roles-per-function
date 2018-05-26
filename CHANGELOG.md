@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.1.9"></a>
+## [0.1.9](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v0.1.8...v0.1.9) (2018-05-26)
+
+
+### Bug Fixes
+
+* support per function role with an empty iamRoleStatements clause (issue [#9](https://github.com/functionalone/serverless-iam-roles-per-function/issues/9)) ([5a3aadf](https://github.com/functionalone/serverless-iam-roles-per-function/commit/5a3aadf))
+
+
+### Features
+
+* code coverage reporting ([51367c8](https://github.com/functionalone/serverless-iam-roles-per-function/commit/51367c8))
+
+
+
 <a name="0.1.8"></a>
 ## [0.1.8](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v0.1.7...v0.1.8) (2018-05-17)
 

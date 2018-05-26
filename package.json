@@ -1,7 +1,7 @@
 {
   "name": "serverless-iam-roles-per-function",
   "private": false,
-  "version": "0.1.8",
+  "version": "0.1.9",
   "engines": {
     "node": ">=6.10.0"
   },
@@ -11,7 +11,7 @@
     "clean": "rimraf dist",
     "test-bare": "npm run compile && mocha ./dist/test/**/*.test.js",
     "test": "nyc mocha --require ts-node/register --require source-map-support/register  ./src/test/**/*.test.ts",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",    
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
     "compile": "tsc",
     "watch": "tsc -w",
     "prepublishOnly": "npm run clean && npm run compile",
