@@ -144,6 +144,18 @@ describe('plugin tests', function(this: any) {
         assert.isObject(policy_statements.find((s) => s.Action[0] === "sns:Publish"), 'sns dlq statements included');   
         const streamMapping = serverless.service.provider.compiledCloudFormationTemplate.Resources.StreamHandlerEventSourceMappingDynamodbTest;
         assert.equal(streamMapping.DependsOn, "StreamHandlerIamRoleLambdaExecution");
+        //verify helloNoPerFunction should have global role
+        const helloNoPerFunctionResource = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloNoPerFunctionLambdaFunction;
+        assert.isTrue(helloNoPerFunctionResource.DependsOn.indexOf('IamRoleLambdaExecution') >= 0, 'function resource depends on global role');
+        assert.equal(helloNoPerFunctionResource.Properties.Role["Fn::GetAtt"][0], 'IamRoleLambdaExecution', "function resource role is set to global role"); 
+        //verify helloEmptyIamStatements
+        const helloEmptyIamStatementsRole = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloEmptyIamStatementsIamRoleLambdaExecution;
+        assertFunctionRoleName('helloEmptyIamStatements', helloEmptyIamStatementsRole.Properties.RoleName);
+        assert.equal(helloEmptyIamStatementsRole.Properties.ManagedPolicyArns[0], 'arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole');
+        const helloEmptyFunctionResource = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloEmptyIamStatementsLambdaFunction;
+        assert.isTrue(helloEmptyFunctionResource.DependsOn.indexOf('HelloEmptyIamStatementsIamRoleLambdaExecution') >= 0, 'function resource depends on role');
+        assert.equal(helloEmptyFunctionResource.Properties.Role["Fn::GetAtt"][0], 'HelloEmptyIamStatementsIamRoleLambdaExecution', 
+          "function resource role is set properly"); 
       });
 
       it('should do nothing when no functions defined', () => {
