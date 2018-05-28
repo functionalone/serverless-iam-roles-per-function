@@ -128,6 +128,7 @@ describe('plugin tests', function(this: any) {
         const helloRole = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloIamRoleLambdaExecution;
         assert.isNotEmpty(helloRole);
         assertFunctionRoleName('hello', helloRole.Properties.RoleName);
+        assert.isEmpty(helloRole.Properties.ManagedPolicyArns, 'function resource role has no managed policy');
         //check depends and role is set properlly
         const helloFunctionResource = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloLambdaFunction;
         assert.isTrue(helloFunctionResource.DependsOn.indexOf('HelloIamRoleLambdaExecution') >= 0, 'function resource depends on role');

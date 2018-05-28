@@ -172,6 +172,8 @@ class ServerlessIamPerFunctionPlugin {
         },
       ],
     };
+    // remove managed policies
+    functionIamRole.Properties.ManagedPolicyArns = [];
     //set vpc if needed
     if (!_.isEmpty(functionObject.vpc) || !_.isEmpty(this.serverless.service.provider.vpc)) {
       functionIamRole.Properties.ManagedPolicyArns = [
