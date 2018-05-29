@@ -3,7 +3,8 @@
 [![serverless][sls-image]][sls-url] 
 [![npm package][npm-image]][npm-url] 
 [![Build Status][travis-image]][travis-url] 
-[![dependencies Status][david-image]][david-url]
+[![Coverage Status][coveralls-image]][coveralls-url] 
+[![Dependencies Status][david-image]][david-url]
 
 A Serverless plugin to easily define IAM roles per function via the use of `iamRoleStatements` at the function definition block. 
 
@@ -111,3 +112,5 @@ custom:
 [travis-url]:https://travis-ci.org/functionalone/serverless-iam-roles-per-function
 [david-image]:https://david-dm.org/functionalone/serverless-iam-roles-per-function/status.svg
 [david-url]:https://david-dm.org/functionalone/serverless-iam-roles-per-function
+[coveralls-image]:https://img.shields.io/coveralls/github/functionalone/serverless-iam-roles-per-function/master.svg
+[coveralls-url]:https://coveralls.io/github/functionalone/serverless-iam-roles-per-function?branch=master
