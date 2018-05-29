@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.0.0"></a>
+# [1.0.0](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v0.1.9...v1.0.0) (2018-05-29)
+
+
+### Bug Fixes
+
+* remove managed policies from cloned role ([942816f](https://github.com/functionalone/serverless-iam-roles-per-function/commit/942816f))
+
+
+### Features
+
+* support for running tests with multiple serverless versions ([0153d79](https://github.com/functionalone/serverless-iam-roles-per-function/commit/0153d79))
+* tests to check empty iam statements array and no-block ([8d601b4](https://github.com/functionalone/serverless-iam-roles-per-function/commit/8d601b4))
+* update dependencies to latest versions ([b4487c3](https://github.com/functionalone/serverless-iam-roles-per-function/commit/b4487c3))
+* update README with code coverage status ([8387371](https://github.com/functionalone/serverless-iam-roles-per-function/commit/8387371))
+
+
+
 <a name="0.1.9"></a>
 ## [0.1.9](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v0.1.8...v0.1.9) (2018-05-26)
 
