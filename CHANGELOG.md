@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.0.1"></a>
+## [1.0.1](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v1.0.0...v1.0.1) (2018-05-30)
+
+
+### Features
+
+* fix README with coveralls coverage status ([aa3efe3](https://github.com/functionalone/serverless-iam-roles-per-function/commit/aa3efe3))
+
+
+
 <a name="1.0.0"></a>
 # [1.0.0](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v0.1.9...v1.0.0) (2018-05-29)
 
