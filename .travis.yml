@@ -16,7 +16,7 @@ before_install:
 
 install:
   - travis_retry npm install
-  - npm install --no-save `npx npm-get-version serverless@$SERVERLESS_VERSION`
+  - npm install --no-save --ignore-scripts `npx npm-get-version serverless@$SERVERLESS_VERSION`
 
 sudo: false
 
