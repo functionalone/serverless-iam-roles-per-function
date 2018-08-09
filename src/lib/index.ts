@@ -53,6 +53,9 @@ class ServerlessIamPerFunctionPlugin {
     if(!_.isArray(fnJoin) || fnJoin.length !== 2 || !_.isArray(fnJoin[1]) || fnJoin[1].length < 2) {
       throw new this.serverless.classes.Error("Global Role Name is not in exepcted format. Got name: " + JSON.stringify(roleName));
     }
+    // Remove lambdaRole from name to give more space for function name.
+    fnJoin[1].pop();
+
     fnJoin[1].splice(2, 0, functionName);
     let length=0; //calculate the expected length. Sum the lenght of each part
     for (const part of fnJoin[1]) {
