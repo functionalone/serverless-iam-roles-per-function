@@ -45,7 +45,16 @@ class ServerlessIamPerFunctionPlugin {
       throw new this.serverless.classes.Error(`ERROR: could not find ${awsPackagePluginName} plugin to verify statements.`);      
     }
     this.awsPackagePlugin.validateStatements(statements);
-  } 
+  }
+  
+  getRoleNameLength(name_parts: any[]) {
+    let length=0; //calculate the expected length. Sum the length of each part
+    for (const part of name_parts) {
+      length += part.length;
+    }
+    length += (name_parts.length - 1); //take into account the dashes between parts
+    return length;
+  }
 
   getFunctionRoleName(functionName: string) {
     const roleName = this.serverless.providers.aws.naming.getRoleName();
@@ -53,13 +62,12 @@ class ServerlessIamPerFunctionPlugin {
     if(!_.isArray(fnJoin) || fnJoin.length !== 2 || !_.isArray(fnJoin[1]) || fnJoin[1].length < 2) {
       throw new this.serverless.classes.Error("Global Role Name is not in exepcted format. Got name: " + JSON.stringify(roleName));
     }
-    fnJoin[1].splice(2, 0, functionName);
-    let length=0; //calculate the expected length. Sum the lenght of each part
-    for (const part of fnJoin[1]) {
-      length += part.length;
+    fnJoin[1].splice(2, 0, functionName); //insert the function name
+    if(this.getRoleNameLength(fnJoin[1]) > 64 && fnJoin[1][fnJoin[1].length-1] === 'lambdaRole') {
+      // Remove lambdaRole from name to give more space for function name.
+      fnJoin[1].pop();
     }
-    length += (fnJoin[1].length - 1); //take into account the dashes between parts
-    if(length > 64) { //aws limits to 64 chars the role name
+    if(this.getRoleNameLength(fnJoin[1]) > 64) { //aws limits to 64 chars the role name
       throw new this.serverless.classes.Error(`auto generated role name for function: ${functionName} is too long (over 64 chars).
         Try setting a custom role name using the property: iamRoleStatementsName.`);
     }

@@ -59,7 +59,7 @@ describe('plugin tests', function(this: any) {
   }
   
   describe('defaultInherit not set', () => {    
-    let plugin: any;
+    let plugin: Plugin;
     
     beforeEach(async () => {      
       plugin = new Plugin(serverless);
@@ -115,10 +115,24 @@ describe('plugin tests', function(this: any) {
         const name = 'test-name';
         const roleName = plugin.getFunctionRoleName(name);
         assertFunctionRoleName(name, roleName);
+        const name_parts = roleName['Fn::Join'][1];
+        assert.equal(name_parts[name_parts.length - 1], 'lambdaRole');        
       });
 
       it('should throw an error on long name', () => {
         assert.throws(() => {plugin.getFunctionRoleName('long-long-long-long-long-long-long-long-long-long-long-name');});
+      });
+
+      it('should return a name without "lambdaRole"', () => {
+        let name = 'test-name';        
+        let roleName = plugin.getFunctionRoleName(name);
+        const len = plugin.getRoleNameLength(roleName['Fn::Join'][1]);
+        //create a name which causes role name to be longer than 64 chars by 1. Will cause then lambdaRole to be removed
+        name += 'a'.repeat(64 - len + 1);
+        roleName = plugin.getFunctionRoleName(name);
+        assertFunctionRoleName(name, roleName);
+        const name_parts = roleName['Fn::Join'][1];
+        assert.notEqual(name_parts[name_parts.length - 1], 'lambdaRole');        
       });
     });
 
