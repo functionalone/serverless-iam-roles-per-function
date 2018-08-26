@@ -9,11 +9,9 @@ node_js:
   - "8"
   - "10"
 env:
-  - SERVERLESS_VERSION=latest
+  - SERVERLESS_VERSION=latest COV_PUB=true
   - SERVERLESS_VERSION=latest~1
-  - SERVERLESS_VERSION=latest~2
-  - SERVERLESS_VERSION=latest~3
-  - SERVERLESS_VERSION=latest~4
+  - SERVERLESS_VERSION=latest~2  
 
 before_install:
   - npm i -g npm@6
@@ -24,4 +22,4 @@ install:
 
 sudo: false
 
-after_success: npm run coverage
+after_success: test -z "$COV_PUB" || npm run coverage
