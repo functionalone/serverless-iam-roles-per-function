@@ -95,6 +95,29 @@ custom:
   serverless-iam-roles-per-function:
     defaultInherit: true
 ```
+## Role Names
+The plugin uses a naming convention for function roles which is similar to the naming convention used by the Serverless Framework. Function roles are named with the following convention:
+```
+<service-name>-<stage>-<function-name>-<region>-lambdaRole
+```
+AWS has a 64 character limit on role names. If the default naming exceeds 64 chars the plugin will remove the suffix: `-lambdaRole` to shorten the name. If it still exceeds 64 chars an error will be thrown containing a message of the form:
+```
+auto generated role name for function: ${functionName} is too long (over 64 chars).
+Try setting a custom role name using the property: iamRoleStatementsName.
+``` 
+In this case you should set the role name using the property `iamRoleStatementsName`. For example:
+```yaml
+functions:
+  func1:
+    handler: handler.get
+    iamRoleStatementsName: my-custom-role-name 
+    iamRoleStatements:
+      - Effect: "Allow"        
+        Action:
+          - dynamodb:GetItem        
+        Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/mytable"
+    ...
+```  
 
 ## More Info
 
