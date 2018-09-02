@@ -1,4 +1,7 @@
 import _ from 'lodash';
+import util from 'util';
+
+const PLUGIN_NAME = 'serverless-iam-roles-per-function';
 
 interface Statement {
   Effect: "Allow" | "Deny";
@@ -25,7 +28,19 @@ class ServerlessIamPerFunctionPlugin {
     this.hooks = {
       'before:package:finalize': this.createRolesPerFunction.bind(this),
     };    
-    this.defaultInherit = _.get(this.serverless.service, "custom.serverless-iam-roles-per-function.defaultInherit", false);
+    this.defaultInherit = _.get(this.serverless.service, `custom.${PLUGIN_NAME}.defaultInherit`, false);
+  }
+
+  /**
+   * Utility function which throws an error. The msg will be formated with args using util.format.
+   * Error message will be prefixed with ${PLUGIN_NAME}: ERROR: 
+   */
+  throwError(msg: string, ...args: any[]) {
+    if(!_.isEmpty(args)) {
+      msg  = util.format(msg, args);
+    }
+    const err_msg = `${PLUGIN_NAME}: ERROR: ${msg}`;
+    throw new this.serverless.classes.Error(err_msg);  
   }
 
   validateStatements(statements: any): void {
@@ -42,7 +57,7 @@ class ServerlessIamPerFunctionPlugin {
       }
     }
     if(!this.awsPackagePlugin) {
-      throw new this.serverless.classes.Error(`ERROR: could not find ${awsPackagePluginName} plugin to verify statements.`);      
+      this.throwError(`ERROR: could not find ${awsPackagePluginName} plugin to verify statements.`);      
     }
     this.awsPackagePlugin.validateStatements(statements);
   }
@@ -60,7 +75,7 @@ class ServerlessIamPerFunctionPlugin {
     const roleName = this.serverless.providers.aws.naming.getRoleName();
     const fnJoin = roleName['Fn::Join'];
     if(!_.isArray(fnJoin) || fnJoin.length !== 2 || !_.isArray(fnJoin[1]) || fnJoin[1].length < 2) {
-      throw new this.serverless.classes.Error("Global Role Name is not in exepcted format. Got name: " + JSON.stringify(roleName));
+      this.throwError("Global Role Name is not in exepcted format. Got name: " + JSON.stringify(roleName));
     }
     fnJoin[1].splice(2, 0, functionName); //insert the function name
     if(this.getRoleNameLength(fnJoin[1]) > 64 && fnJoin[1][fnJoin[1].length-1] === 'lambdaRole') {
@@ -68,7 +83,7 @@ class ServerlessIamPerFunctionPlugin {
       fnJoin[1].pop();
     }
     if(this.getRoleNameLength(fnJoin[1]) > 64) { //aws limits to 64 chars the role name
-      throw new this.serverless.classes.Error(`auto generated role name for function: ${functionName} is too long (over 64 chars).
+      this.throwError(`auto generated role name for function: ${functionName} is too long (over 64 chars).
         Try setting a custom role name using the property: iamRoleStatementsName.`);
     }
     return roleName;
@@ -86,7 +101,7 @@ class ServerlessIamPerFunctionPlugin {
     const functionResource = this.serverless.service.provider.compiledCloudFormationTemplate.Resources[functionResourceName];
     if(_.isEmpty(functionResource) || _.isEmpty(functionResource.Properties) || _.isEmpty(functionResource.Properties.Role) ||
       !_.isArray(functionResource.Properties.Role["Fn::GetAtt"]) || !_.isArray(functionResource.DependsOn)) {
-        throw new this.serverless.classes.Error("Function Resource is not in exepcted format. For function name: " + functionName);
+        this.throwError("Function Resource is not in exepcted format. For function name: " + functionName);
     }
     functionResource.DependsOn = [roleName].concat(functionResource.DependsOn.filter(((val: any) => val !== globalRoleName )));
     functionResource.Properties.Role["Fn::GetAtt"][0] = roleName;
@@ -135,7 +150,7 @@ class ServerlessIamPerFunctionPlugin {
             (kinesisStreamStatement.Resource as any[]).push(streamArn);
             break;
           default:
-            throw new this.serverless.classes.Error(`Unsupported stream type: ${streamType} for function: `, functionObject);            
+            this.throwError(`Unsupported stream type: ${streamType} for function: `, functionObject);            
         }        
       }
     }
@@ -159,7 +174,7 @@ class ServerlessIamPerFunctionPlugin {
       return;
     }
     if(functionObject.role) {
-      throw new this.serverless.classes.Error("Defing function with both 'role' and 'iamRoleStatements' is not supported. Function name: " + functionName);
+      this.throwError("Defing function with both 'role' and 'iamRoleStatements' is not supported. Function name: " + functionName);
     }
     this.validateStatements(functionObject.iamRoleStatements);
     //we use the configured role as a template

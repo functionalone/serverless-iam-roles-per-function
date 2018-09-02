@@ -120,7 +120,18 @@ describe('plugin tests', function(this: any) {
       });
 
       it('should throw an error on long name', () => {
-        assert.throws(() => {plugin.getFunctionRoleName('long-long-long-long-long-long-long-long-long-long-long-name');});
+        const long_name = 'long-long-long-long-long-long-long-long-long-long-long-name';
+        assert.throws(() => {plugin.getFunctionRoleName(long_name);});
+        try {
+          plugin.getFunctionRoleName(long_name);
+        } catch (error) {
+          //some validation that the error we throw is what we expect
+          const msg: string = error.message;
+          assert.isString(msg);          
+          assert.isTrue(msg.startsWith('serverless-iam-roles-per-function: ERROR:'));
+          assert.isTrue(msg.includes(long_name));
+          assert.isTrue(msg.endsWith('iamRoleStatementsName.'));
+        }
       });
 
       it('should return a name without "lambdaRole"', () => {
@@ -196,10 +207,24 @@ describe('plugin tests', function(this: any) {
 
     });
 
+    describe('#throwErorr', () => {
+      it('should throw formated error', () => {
+        try {
+          plugin.throwError('msg :%s', 'testing');
+          assert.fail('expected error to be thrown');
+        } catch (error) {
+          const msg: string = error.message;
+          assert.isString(msg);
+          assert.isTrue(msg.startsWith('serverless-iam-roles-per-function: ERROR:'));
+          assert.isTrue(msg.endsWith('testing'));
+        }
+      });
+    });
+
   });
 
   describe('defaultInherit set', () => {    
-    let plugin: any;
+    let plugin: Plugin;
 
     beforeEach(() => {      
       //set defaultInherit
@@ -235,8 +260,7 @@ describe('plugin tests', function(this: any) {
         assert.isTrue(statements.find((s) => s.Action[0] === "xray:PutTelemetryRecords") === undefined, 
           'global statements not imported as iamRoleStatementsInherit is false');
       });
-    });
-
+    });    
   });
 
 });
