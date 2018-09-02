@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.0.4"></a>
+## [1.0.4](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v1.0.3...v1.0.4) (2018-09-02)
+
+
+### Features
+
+* improved formatting for error messages from the plugin ([cea0541](https://github.com/functionalone/serverless-iam-roles-per-function/commit/cea0541))
+* update dependencies ([43641b3](https://github.com/functionalone/serverless-iam-roles-per-function/commit/43641b3))
+* update README with download stats ([f9b0b4a](https://github.com/functionalone/serverless-iam-roles-per-function/commit/f9b0b4a))
+
+
+
 <a name="1.0.3"></a>
 ## [1.0.3](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v1.0.2...v1.0.3) (2018-08-26)
 
