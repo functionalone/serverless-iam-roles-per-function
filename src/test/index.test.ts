@@ -166,10 +166,39 @@ describe('plugin tests', function(this: any) {
         const streamHandlerRole = serverless.service.provider.compiledCloudFormationTemplate.Resources.StreamHandlerIamRoleLambdaExecution;
         assertFunctionRoleName('streamHandler', streamHandlerRole.Properties.RoleName);
         policy_statements = streamHandlerRole.Properties.Policies[0].PolicyDocument.Statement;
-        assert.isObject(policy_statements.find((s) => s.Action[0] === "dynamodb:GetRecords"), 'stream statements included');
-        assert.isObject(policy_statements.find((s) => s.Action[0] === "sns:Publish"), 'sns dlq statements included');   
+        assert.isObject(
+          policy_statements.find((s) => 
+            _.isEqual(s.Action, [
+              "dynamodb:GetRecords", 
+              "dynamodb:GetShardIterator", 
+              "dynamodb:DescribeStream", 
+              "dynamodb:ListStreams"]) &&
+            _.isEqual(s.Resource, [
+              "arn:aws:dynamodb:us-east-1:1234567890:table/test/stream/2017-10-09T19:39:15.151"])),
+          'stream statements included'
+        );
+        assert.isObject(policy_statements.find((s) => s.Action[0] === "sns:Publish"), 'sns dlq statements included');
         const streamMapping = serverless.service.provider.compiledCloudFormationTemplate.Resources.StreamHandlerEventSourceMappingDynamodbTest;
         assert.equal(streamMapping.DependsOn, "StreamHandlerIamRoleLambdaExecution");
+        //verify sqsHandler should have SQS permissions
+        const sqsHandlerRole = serverless.service.provider.compiledCloudFormationTemplate.Resources.SqsHandlerIamRoleLambdaExecution;
+        assertFunctionRoleName('sqsHandler', sqsHandlerRole.Properties.RoleName);
+        policy_statements = sqsHandlerRole.Properties.Policies[0].PolicyDocument.Statement;
+        JSON.stringify(policy_statements);
+        assert.isObject(
+          policy_statements.find((s) => 
+            _.isEqual(s.Action, [
+              "sqs:ReceiveMessage", 
+              "sqs:DeleteMessage", 
+              "sqs:GetQueueAttributes"]) &&
+            _.isEqual(s.Resource, [
+              "arn:aws:sqs:us-east-1:1234567890:MyQueue", 
+              "arn:aws:sqs:us-east-1:1234567890:MyOtherQueue"])),
+          'sqs statements included'
+        );
+        assert.isObject(policy_statements.find((s) => s.Action[0] === "sns:Publish"), 'sns dlq statements included');
+        const sqsMapping = serverless.service.provider.compiledCloudFormationTemplate.Resources.SqsHandlerEventSourceMappingSQSMyQueue;
+        assert.equal(sqsMapping.DependsOn, "SqsHandlerIamRoleLambdaExecution");
         //verify helloNoPerFunction should have global role
         const helloNoPerFunctionResource = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloNoPerFunctionLambdaFunction;
         assert.isTrue(helloNoPerFunctionResource.DependsOn.indexOf('IamRoleLambdaExecution') >= 0, 'function resource depends on global role');
