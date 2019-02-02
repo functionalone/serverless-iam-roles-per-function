@@ -190,7 +190,7 @@ class ServerlessIamPerFunctionPlugin {
       Action: ["logs:CreateLogStream", "logs:PutLogEvents"],
       Resource: [
         { 
-          'Fn::Sub': 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}' + 
+          'Fn::Sub': 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}' + 
             `:log-group:${this.serverless.providers.aws.naming.getLogGroupName(functionObject.name)}:*:*`, 
         },
       ],
@@ -200,7 +200,7 @@ class ServerlessIamPerFunctionPlugin {
     //set vpc if needed
     if (!_.isEmpty(functionObject.vpc) || !_.isEmpty(this.serverless.service.provider.vpc)) {
       functionIamRole.Properties.ManagedPolicyArns = [
-        'arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole',
+        'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole',
       ];
     }    
     for (const s of this.getStreamStatements(functionObject)) { //set stream statements (if needed)
