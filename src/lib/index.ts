@@ -109,6 +109,30 @@ class ServerlessIamPerFunctionPlugin {
   }
 
   /**
+   * Get the necessary statement permissions if there are SQS event sources.
+   * @param functionObject 
+   * @return statement (possibly null)
+   */
+  getSqsStatement(functionObject: any) {
+    const sqsStatement: Statement = {
+      Effect: 'Allow',
+      Action: [
+        'sqs:ReceiveMessage',
+        'sqs:DeleteMessage',
+        'sqs:GetQueueAttributes',
+      ],
+      Resource: [],
+    };
+    for (const event of functionObject.events) {
+      if(event.sqs) {
+        const sqsArn = event.sqs.arn || event.sqs;
+        (sqsStatement.Resource as any[]).push(sqsArn);
+      }
+    }
+    return sqsStatement.Resource.length ? sqsStatement : null;    
+  }
+
+  /**
    * Get the necessary statement permissions if there are stream event sources of dynamo or kinesis. 
    * @param functionObject 
    * @return array of statements (possibly empty)
@@ -205,6 +229,10 @@ class ServerlessIamPerFunctionPlugin {
     }    
     for (const s of this.getStreamStatements(functionObject)) { //set stream statements (if needed)
       policyStatements.push(s);
+    }
+    const sqsStatement = this.getSqsStatement(functionObject); //set sqs statement (if needed)
+    if (sqsStatement) {
+      policyStatements.push(sqsStatement);
     }
     // set sns publish for DLQ if needed
     // currently only sns is supported: https://serverless.com/framework/docs/providers/aws/events/sns#dlq-with-sqs
