@@ -195,59 +195,35 @@ class ServerlessIamPerFunctionPlugin {
     return res;
   }
 
-  /**
-   * Will check if function has a definition of iamRoleStatements. If so will create a new Role for the function based on these statements.
-   * @param functionName
-   * @param functionToRoleMap - populate the map with a mapping from function resource name to role resource name
-   */
-  createRoleForFunction(functionName: string, functionToRoleMap: Map<string, string>) {
-    const functionObject = this.serverless.service.getFunction(functionName);
-    if(functionObject.iamRoleStatements === undefined) {
-      return;
-    }
-    if(functionObject.role) {
-      this.throwError("Defing function with both 'role' and 'iamRoleStatements' is not supported. Function name: " + functionName);
-    }
-    this.validateStatements(functionObject.iamRoleStatements);
-    //we use the configured role as a template
-    const globalRoleName = this.serverless.providers.aws.naming.getRoleLogicalId();
-    const globalIamRole = this.serverless.service.provider.compiledCloudFormationTemplate.Resources[globalRoleName];
-    const functionIamRole = _.cloneDeep(globalIamRole);
-    //remove the statements
-    const policyStatements: Statement[] = [];
-    functionIamRole.Properties.Policies[0].PolicyDocument.Statement = policyStatements;
+  generateInlinePolicy(functionObject: any, policyStatements: Statement[]) {
     //set log statements
     policyStatements[0] = {
       Effect: "Allow",
-      Action: ["logs:CreateLogStream", "logs:PutLogEvents"],
+      Action: [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+      ],
       Resource: [
         {
-          'Fn::Sub': 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}' +
-            `:log-group:${this.serverless.providers.aws.naming.getLogGroupName(functionObject.name)}:*:*`,
+          'Fn::Sub': 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}' +
+              `:log-group:${this.serverless.providers.aws.naming.getLogGroupName(functionObject.name)}:*:*`,
         },
       ],
     };
-    // remove managed policies
-    functionIamRole.Properties.ManagedPolicyArns = [];
-    //set vpc if needed
-    if (!_.isEmpty(functionObject.vpc) || !_.isEmpty(this.serverless.service.provider.vpc)) {
-      functionIamRole.Properties.ManagedPolicyArns = [{
-        'Fn::Join': ['',
-          [
-            'arn:',
-            { Ref: 'AWS::Partition' },
-            ':iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole',
-          ],
-        ],
-      }];
-    }
-    for (const s of this.getStreamStatements(functionObject)) { //set stream statements (if needed)
+
+    //set stream statements (if needed)
+    const streamStatements = this.getStreamStatements(functionObject);
+    for (const s of streamStatements) {
       policyStatements.push(s);
     }
-    const sqsStatement = this.getSqsStatement(functionObject); //set sqs statement (if needed)
+
+    //set sqs statement (if needed)
+    const sqsStatement = this.getSqsStatement(functionObject);
     if (sqsStatement) {
       policyStatements.push(sqsStatement);
     }
+
     // set sns publish for DLQ if needed
     // currently only sns is supported: https://serverless.com/framework/docs/providers/aws/events/sns#dlq-with-sqs
     if (!_.isEmpty(functionObject.onError)) { //
@@ -259,18 +235,88 @@ class ServerlessIamPerFunctionPlugin {
         Resource: functionObject.onError,
       });
     }
+
+    //add global statements
     if((functionObject.iamRoleStatementsInherit || (this.defaultInherit && functionObject.iamRoleStatementsInherit !== false))
-      && !_.isEmpty(this.serverless.service.provider.iamRoleStatements)) { //add global statements
+        && !_.isEmpty(this.serverless.service.provider.iamRoleStatements)) {
       for (const s of this.serverless.service.provider.iamRoleStatements) {
         policyStatements.push(s);
       }
     }
+
     //add iamRoleStatements
     if(_.isArray(functionObject.iamRoleStatements)) {
       for (const s of functionObject.iamRoleStatements) {
         policyStatements.push(s);
       }
     }
+  }
+
+  generateManagedPolicies(functionObject: any, managedPolicies: any[]) {
+    //set vpc if needed
+    if (!_.isEmpty(functionObject.vpc) || !_.isEmpty(this.serverless.service.provider.vpc)) {
+      managedPolicies.push(
+        {
+          'Fn::Join': ['',
+            [
+              'arn:',
+              { Ref: 'AWS::Partition' },
+              ':iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole',
+            ],
+          ],
+        }
+        );
+    }
+
+    //add global statements
+    if((functionObject.iamManagedPoliciesInherit || (this.defaultInherit && functionObject.iamManagedPoliciesInherit !== false))
+        && !_.isEmpty(this.serverless.service.provider.iamManagedPolicies)) {
+      for (const s of this.serverless.service.provider.iamManagedPolicies) {
+        managedPolicies.push(s);
+      }
+    }
+
+    //add iamRoleStatements
+    if(_.isArray(functionObject.iamManagedPolicies)) {
+      for (const s of functionObject.iamManagedPolicies) {
+        managedPolicies.push(s);
+      }
+    }
+  }
+
+  /**
+   * Will check if function has a definition of iamRoleStatements. If so will create a new Role for the function based on these statements.
+   * @param functionName
+   * @param functionToRoleMap - populate the map with a mapping from function resource name to role resource name
+   */
+  createRoleForFunction(functionName: string, functionToRoleMap: Map<string, string>) {
+    const functionObject = this.serverless.service.getFunction(functionName);
+
+    if(functionObject.iamRoleStatements === undefined) {
+      return;
+    }
+
+    if(functionObject.role) {
+      this.throwError("Defing function with both 'role' and 'iamRoleStatements' is not supported. Function name: " + functionName);
+    }
+
+    this.validateStatements(functionObject.iamRoleStatements);
+
+    //we use the configured role as a template
+    const globalRoleName = this.serverless.providers.aws.naming.getRoleLogicalId();
+    const globalIamRole = this.serverless.service.provider.compiledCloudFormationTemplate.Resources[globalRoleName];
+    const functionIamRole = _.cloneDeep(globalIamRole);
+
+    // rebuild managed policies
+    const managedPolicies: string[] = [];
+    functionIamRole.Properties.ManagedPolicyArns = managedPolicies;
+    this.generateManagedPolicies(functionObject, managedPolicies);
+
+    // rebuild the inline policy
+    const policyStatements: Statement[] = [];
+    functionIamRole.Properties.Policies[0].PolicyDocument.Statement = policyStatements;
+    this.generateInlinePolicy(functionObject, policyStatements);
+
     functionIamRole.Properties.RoleName = functionObject.iamRoleStatementsName || this.getFunctionRoleName(functionName);
     const roleResourceName = this.serverless.providers.aws.naming.getNormalizedFunctionName(functionName) + globalRoleName;
     this.serverless.service.provider.compiledCloudFormationTemplate.Resources[roleResourceName] = functionIamRole;
