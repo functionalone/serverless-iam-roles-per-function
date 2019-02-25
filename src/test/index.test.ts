@@ -206,7 +206,7 @@ describe('plugin tests', function(this: any) {
         //verify helloEmptyIamStatements
         const helloEmptyIamStatementsRole = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloEmptyIamStatementsIamRoleLambdaExecution;
         assertFunctionRoleName('helloEmptyIamStatements', helloEmptyIamStatementsRole.Properties.RoleName);
-        assert.equal(helloEmptyIamStatementsRole.Properties.ManagedPolicyArns[0], 'arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole');
+        assert.equal(helloEmptyIamStatementsRole.Properties.ManagedPolicyArns[0], 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole');
         const helloEmptyFunctionResource = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloEmptyIamStatementsLambdaFunction;
         assert.isTrue(helloEmptyFunctionResource.DependsOn.indexOf('HelloEmptyIamStatementsIamRoleLambdaExecution') >= 0, 'function resource depends on role');
         assert.equal(helloEmptyFunctionResource.Properties.Role["Fn::GetAtt"][0], 'HelloEmptyIamStatementsIamRoleLambdaExecution', 
@@ -228,7 +228,7 @@ describe('plugin tests', function(this: any) {
       });
 
       it('should throw when external role is defined', () => {
-        _.set(serverless.service, "functions.hello.role", "arn:aws:iam::0123456789:role/Test");
+        _.set(serverless.service, "functions.hello.role", "arn:${AWS::Partition}:iam::0123456789:role/Test");
         assert.throws(() => {
           plugin.createRolesPerFunction();
         });
