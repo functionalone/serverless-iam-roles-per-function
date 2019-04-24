@@ -1,11 +1,11 @@
 {
   "compileOnSave": true,
-  "compilerOptions": {    
+  "compilerOptions": {
     "strict": true,
     "noUnusedLocals": true,
     "outDir": "./dist",
     "declaration": true,
-    "rootDir": "src",    
+    "rootDir": "src",
     "target": "es6",
     "moduleResolution": "node",
     "module": "commonjs",
@@ -20,6 +20,6 @@
   },
   "exclude": [
     "node_modules",
-    "dist",
+    "dist"
   ]
 }
