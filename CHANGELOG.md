@@ -7,8 +7,8 @@ All notable changes to this project will be documented in this file. See [standa
 
 
 ### Features
-* Prevent hard coded aws partition in arn of resources (#18)
-* Support for SQS event source (#17)
+* Prevent hard coded aws partition in arn of resources ([#18](https://github.com/functionalone/serverless-iam-roles-per-function/issues/18))
+* Support for SQS event source ([#17](https://github.com/functionalone/serverless-iam-roles-per-function/issues/17))
 
 <a name="1.0.4"></a>
 ## [1.0.4](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v1.0.3...v1.0.4) (2018-09-02)
