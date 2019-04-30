@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.0.0"></a>
+# [2.0.0](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v1.0.4...v2.0.0) (2019-04-30)
+
+
+### Features
+* Prevent hard coded aws partition in arn of resources (#18)
+* Support for SQS event source (#17)
+
 <a name="1.0.4"></a>
 ## [1.0.4](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v1.0.3...v1.0.4) (2018-09-02)
 
