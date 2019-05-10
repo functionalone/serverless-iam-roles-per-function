@@ -6,7 +6,7 @@ const PLUGIN_NAME = 'serverless-iam-roles-per-function';
 interface Statement {
   Effect: "Allow" | "Deny";
   Action: string | string[];
-  Resource: string | any[];  
+  Resource: string | any[];
 }
 
 class ServerlessIamPerFunctionPlugin {
@@ -14,33 +14,33 @@ class ServerlessIamPerFunctionPlugin {
   provider: string;
   hooks: {[i: string]: () => void};
   serverless: any;
-  awsPackagePlugin: any; 
+  awsPackagePlugin: any;
   defaultInherit: boolean;
 
   /**
-   * 
+   *
    * @param serverless - serverless host object
-   * @param options 
+   * @param options
    */
   constructor(serverless: any) {
     this.provider = 'aws';
     this.serverless = serverless;
     this.hooks = {
       'before:package:finalize': this.createRolesPerFunction.bind(this),
-    };    
+    };
     this.defaultInherit = _.get(this.serverless.service, `custom.${PLUGIN_NAME}.defaultInherit`, false);
   }
 
   /**
    * Utility function which throws an error. The msg will be formated with args using util.format.
-   * Error message will be prefixed with ${PLUGIN_NAME}: ERROR: 
+   * Error message will be prefixed with ${PLUGIN_NAME}: ERROR:
    */
   throwError(msg: string, ...args: any[]) {
     if(!_.isEmpty(args)) {
       msg  = util.format(msg, args);
     }
     const err_msg = `${PLUGIN_NAME}: ERROR: ${msg}`;
-    throw new this.serverless.classes.Error(err_msg);  
+    throw new this.serverless.classes.Error(err_msg);
   }
 
   validateStatements(statements: any): void {
@@ -57,11 +57,11 @@ class ServerlessIamPerFunctionPlugin {
       }
     }
     if(!this.awsPackagePlugin) {
-      this.throwError(`ERROR: could not find ${awsPackagePluginName} plugin to verify statements.`);      
+      this.throwError(`ERROR: could not find ${awsPackagePluginName} plugin to verify statements.`);
     }
     this.awsPackagePlugin.validateStatements(statements);
   }
-  
+
   getRoleNameLength(name_parts: any[]) {
     let length=0; //calculate the expected length. Sum the length of each part
     for (const part of name_parts) {
@@ -90,10 +90,10 @@ class ServerlessIamPerFunctionPlugin {
   }
 
   /**
-   * 
-   * @param functionName 
-   * @param roleName 
-   * @param globalRoleName 
+   *
+   * @param functionName
+   * @param roleName
+   * @param globalRoleName
    * @return the function resource name
    */
   updateFunctionResourceRole(functionName: string, roleName: string, globalRoleName: string): string {
@@ -110,7 +110,7 @@ class ServerlessIamPerFunctionPlugin {
 
   /**
    * Get the necessary statement permissions if there are SQS event sources.
-   * @param functionObject 
+   * @param functionObject
    * @return statement (possibly null)
    */
   getSqsStatement(functionObject: any) {
@@ -129,16 +129,16 @@ class ServerlessIamPerFunctionPlugin {
         (sqsStatement.Resource as any[]).push(sqsArn);
       }
     }
-    return sqsStatement.Resource.length ? sqsStatement : null;    
+    return sqsStatement.Resource.length ? sqsStatement : null;
   }
 
   /**
-   * Get the necessary statement permissions if there are stream event sources of dynamo or kinesis. 
-   * @param functionObject 
+   * Get the necessary statement permissions if there are stream event sources of dynamo or kinesis.
+   * @param functionObject
    * @return array of statements (possibly empty)
    */
-  getStreamStatements(functionObject: any) {  
-    const res: any[] = [];  
+  getStreamStatements(functionObject: any) {
+    const res: any[] = [];
     if(_.isEmpty(functionObject.events)) { //no events
       return res;
     }
@@ -168,14 +168,14 @@ class ServerlessIamPerFunctionPlugin {
         const streamType = event.stream.type || streamArn.split(':')[2];
         switch (streamType) {
           case 'dynamodb':
-            (dynamodbStreamStatement.Resource as any[]).push(streamArn);  
+            (dynamodbStreamStatement.Resource as any[]).push(streamArn);
             break;
           case 'kinesis':
             (kinesisStreamStatement.Resource as any[]).push(streamArn);
             break;
           default:
-            this.throwError(`Unsupported stream type: ${streamType} for function: `, functionObject);            
-        }        
+            this.throwError(`Unsupported stream type: ${streamType} for function: `, functionObject);
+        }
       }
     }
     if (dynamodbStreamStatement.Resource.length) {
@@ -189,7 +189,7 @@ class ServerlessIamPerFunctionPlugin {
 
   /**
    * Will check if function has a definition of iamRoleStatements. If so will create a new Role for the function based on these statements.
-   * @param functionName 
+   * @param functionName
    * @param functionToRoleMap - populate the map with a mapping from function resource name to role resource name
    */
   createRoleForFunction(functionName: string, functionToRoleMap: Map<string, string>) {
@@ -213,9 +213,9 @@ class ServerlessIamPerFunctionPlugin {
       Effect: "Allow",
       Action: ["logs:CreateLogStream", "logs:PutLogEvents"],
       Resource: [
-        { 
-          'Fn::Sub': 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}' + 
-            `:log-group:${this.serverless.providers.aws.naming.getLogGroupName(functionObject.name)}:*:*`, 
+        {
+          'Fn::Sub': 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}' +
+            `:log-group:${this.serverless.providers.aws.naming.getLogGroupName(functionObject.name)}:*:*`,
         },
       ],
     };
@@ -223,10 +223,16 @@ class ServerlessIamPerFunctionPlugin {
     functionIamRole.Properties.ManagedPolicyArns = [];
     //set vpc if needed
     if (!_.isEmpty(functionObject.vpc) || !_.isEmpty(this.serverless.service.provider.vpc)) {
-      functionIamRole.Properties.ManagedPolicyArns = [
-        'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole',
-      ];
-    }    
+      functionIamRole.Properties.ManagedPolicyArns = [{
+        'Fn::Join': ['',
+          [
+            'arn:',
+            { Ref: 'AWS::Partition' },
+            ':iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole',
+          ],
+        ],
+      }];
+    }
     for (const s of this.getStreamStatements(functionObject)) { //set stream statements (if needed)
       policyStatements.push(s);
     }
@@ -245,28 +251,28 @@ class ServerlessIamPerFunctionPlugin {
         Resource: functionObject.onError,
       });
     }
-    if((functionObject.iamRoleStatementsInherit || (this.defaultInherit && functionObject.iamRoleStatementsInherit !== false)) 
+    if((functionObject.iamRoleStatementsInherit || (this.defaultInherit && functionObject.iamRoleStatementsInherit !== false))
       && !_.isEmpty(this.serverless.service.provider.iamRoleStatements)) { //add global statements
       for (const s of this.serverless.service.provider.iamRoleStatements) {
-        policyStatements.push(s);    
+        policyStatements.push(s);
       }
     }
     //add iamRoleStatements
     if(_.isArray(functionObject.iamRoleStatements)) {
       for (const s of functionObject.iamRoleStatements) {
-        policyStatements.push(s);    
+        policyStatements.push(s);
       }
-    }        
+    }
     functionIamRole.Properties.RoleName = functionObject.iamRoleStatementsName || this.getFunctionRoleName(functionName);
     const roleResourceName = this.serverless.providers.aws.naming.getNormalizedFunctionName(functionName) + globalRoleName;
-    this.serverless.service.provider.compiledCloudFormationTemplate.Resources[roleResourceName] = functionIamRole;    
+    this.serverless.service.provider.compiledCloudFormationTemplate.Resources[roleResourceName] = functionIamRole;
     const functionResourceName = this.updateFunctionResourceRole(functionName, roleResourceName, globalRoleName);
     functionToRoleMap.set(functionResourceName, roleResourceName);
   }
 
   /**
    * Go over each EventSourceMapping and if it is for a function with a function level iam role then adjust the DependsOn
-   * @param functionToRoleMap 
+   * @param functionToRoleMap
    */
   setEventSourceMappings(functionToRoleMap: Map<string, string>) {
     for (const mapping of _.values(this.serverless.service.provider.compiledCloudFormationTemplate.Resources)) {
