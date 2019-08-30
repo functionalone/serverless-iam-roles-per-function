@@ -32,8 +32,8 @@ describe('plugin tests', function(this: any) {
     writeFileAtomic.sync(rc, JSON.stringify({
       userId: null,
       frameworkId: "test",
-      trackingDisabled: false,
-      enterpriseDisabled: false,
+      trackingDisabled: true,
+      enterpriseDisabled: true,
       meta: {
         created_at: 1567187050,
         updated_at: null,
