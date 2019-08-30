@@ -33,7 +33,7 @@ describe('plugin tests', function(this: any) {
       userId: null,
       frameworkId: "test",
       trackingDisabled: false,
-      enterpriseDisabled: true,
+      enterpriseDisabled: false,
       meta: {
         created_at: 1567187050,
         updated_at: null,
@@ -47,6 +47,7 @@ describe('plugin tests', function(this: any) {
   beforeEach(async () => {
     serverless = new Serverless();
     serverless.cli = new serverless.classes.CLI();
+    serverless.processedInput = serverless.cli.processInput();
     Object.assign(serverless.service, _.cloneDeep(funcWithIamTemplate));
     serverless.service.provider.compiledCloudFormationTemplate = {
       Resources: {},
