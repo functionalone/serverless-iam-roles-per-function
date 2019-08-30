@@ -8,3 +8,4 @@ serverless-iam-roles-per-function-*.tgz
 coverage
 .nyc_output
 npm-debug.log
+*.txt
