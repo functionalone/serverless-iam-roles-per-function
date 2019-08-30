@@ -36,25 +36,25 @@
     "security"
   ],
   "dependencies": {
-    "lodash": "^4.17.10"
+    "lodash": "^4.17.15"
   },
   "devDependencies": {
-    "@types/chai": "^4.1.4",
-    "@types/lodash": "^4.14.116",
-    "@types/mocha": "^5.2.5",
-    "@types/node": "^6.0.111",
-    "chai": "^4.1.2",
-    "coveralls": "^3.0.2",
-    "mocha": "^5.2.0",
+    "@types/chai": "^4.2.0",
+    "@types/lodash": "^4.14.138",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^6.14.7",
+    "chai": "^4.2.0",
+    "coveralls": "^3.0.6",
+    "mocha": "^6.2.0",
     "npm-get-version": "^1.0.2",
-    "nyc": "^13.0.1",
-    "rimraf": "^2.6.2",
-    "serverless": "^1.30.3",
-    "source-map-support": "^0.5.9",
-    "standard-version": "^4.4.0",
-    "ts-node": "^7.0.1",
-    "tslint": "^5.11.0",
-    "typescript": "^3.0.3"
+    "nyc": "^14.1.1",
+    "rimraf": "^3.0.0",
+    "serverless": "^1.51.0",
+    "source-map-support": "^0.5.13",
+    "standard-version": "^7.0.0",
+    "ts-node": "^8.3.0",
+    "tslint": "^5.19.0",
+    "typescript": "^3.6.2"
   },
   "files": [
     "dist/index.*",
