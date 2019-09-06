@@ -66,7 +66,8 @@ class ServerlessIamPerFunctionPlugin {
     let length=0; //calculate the expected length. Sum the length of each part
     for (const part of name_parts) {
       if (part.Ref) {
-        length += part.Ref.length;
+        const ref = this.resolveRef(part.Ref)
+        length += ref.length;
       }
       else {
         length += part.length;
@@ -306,6 +307,20 @@ class ServerlessIamPerFunctionPlugin {
       this.createRoleForFunction(func, functionToRoleMap);
     }
     this.setEventSourceMappings(functionToRoleMap);
+  }
+
+  private getRegion(): string {
+    return this.serverless.service.provider.region
+  }
+
+  private resolveRef(ref: string): string {
+    switch (ref) {
+      case "AWS::Region":
+        return this.getRegion();
+      default:
+        // TODO: Is there a way to generically resolve the reference? Else maybe just throw an error?
+        return ref
+    }
   }
 }
 
