@@ -12,7 +12,7 @@ node_js:
 env:
   - SERVERLESS_VERSION=latest COV_PUB=true
   - SERVERLESS_VERSION=latest~1
-  - SERVERLESS_VERSION=latest~2  
+  - SERVERLESS_VERSION=latest~2
 
 before_install:
   - npm i -g npm@6
