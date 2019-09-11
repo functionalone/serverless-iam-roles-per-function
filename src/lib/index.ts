@@ -66,12 +66,11 @@ class ServerlessIamPerFunctionPlugin {
     let length=0; //calculate the expected length. Sum the length of each part
     for (const part of name_parts) {
       if (part.Ref) {
-        length += part.Ref.length;
+        length += this.serverless.service.provider.region.length
       }
       else {
         length += part.length;
       }
-      
     }
     length += (name_parts.length - 1); //take into account the dashes between parts
     return length;

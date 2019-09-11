@@ -125,6 +125,38 @@ describe('plugin tests', function(this: any) {
         });
       });
     });
+
+    describe('#getRoleNameLength', () => {
+      it('Should calculate the acurate role name length us-east-1', () => {
+        serverless.service.provider.region = 'us-east-1';
+        let function_name = 'a'.repeat(10);
+        let name_parts = [
+          serverless.service.service,         // test-service , length of 12
+          serverless.service.provider.stage,  // dev, length of 3 : 15
+          { Ref: 'AWS::Region' },             // us-east-1, length 9 : 24
+          function_name,                      // 'a'.repeat(10), length 10 : 34
+          'lambdaRole'                        // lambdaRole, length 10 : 44
+        ];
+        let role_name_length = plugin.getRoleNameLength(name_parts)
+        let expected = 44 // 12 + 3 + 9 + 10 + 10 == 44
+        assert.equal(role_name_length, expected + name_parts.length - 1);
+      });
+
+      it('Should calculate the acurate role name length ap-northeast-1', () => {
+        serverless.service.provider.region = 'ap-northeast-1';
+        let function_name = 'a'.repeat(10);
+        let name_parts = [
+          serverless.service.service,         // test-service , length of 12
+          serverless.service.provider.stage,  // dev, length of 3
+          { Ref: 'AWS::Region' },             // ap-northeast-1, length 14
+          function_name,                      // 'a'.repeat(10), length 10
+          'lambdaRole'                        // lambdaRole, length 10
+        ];
+        let role_name_length = plugin.getRoleNameLength(name_parts)
+        let expected = 49 // 12 + 3 + 14 + 10 + 10 == 49
+        assert.equal(role_name_length, expected + name_parts.length - 1);
+      });
+    });
     
     describe('#getFunctionRoleName', () => {
       it('should return a name with the function name', () => {
