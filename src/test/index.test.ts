@@ -262,7 +262,7 @@ describe('plugin tests', function(this: any) {
           const msg: string = error.message;
           assert.isString(msg);
           assert.isTrue(msg.startsWith('serverless-iam-roles-per-function: ERROR:'));
-          assert.isTrue(msg.endsWith('testing'));
+          assert.isTrue(msg.includes('testing'));
         }
       });
     });
