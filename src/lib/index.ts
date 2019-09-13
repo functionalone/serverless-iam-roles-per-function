@@ -65,14 +65,15 @@ class ServerlessIamPerFunctionPlugin {
   getRoleNameLength(name_parts: any[]) {
     let length=0; //calculate the expected length. Sum the length of each part
     for (const part of name_parts) {
-      if (part.Ref) {
-        const ref = this.resolveRef(part.Ref)
-        length += ref.length;
+      if (part.Ref === 'AWS::Region') {
+        length += this.getRegion().length;
+      }
+      else if (part.Ref) {
+        this.throwError(`ERROR: could not resolve ${part.Ref} reference in role name.`);
       }
       else {
         length += part.length;
       }
-      
     }
     length += (name_parts.length - 1); //take into account the dashes between parts
     return length;
@@ -311,16 +312,6 @@ class ServerlessIamPerFunctionPlugin {
 
   private getRegion(): string {
     return this.serverless.service.provider.region
-  }
-
-  private resolveRef(ref: string): string {
-    switch (ref) {
-      case "AWS::Region":
-        return this.getRegion();
-      default:
-        // TODO: Is there a way to generically resolve the reference? Else maybe just throw an error?
-        return ref
-    }
   }
 }
 
