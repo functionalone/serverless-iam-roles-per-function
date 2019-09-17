@@ -156,6 +156,21 @@ describe('plugin tests', function(this: any) {
         let expected = 49 // 12 + 3 + 14 + 10 + 10 == 49
         assert.equal(role_name_length, expected + name_parts.length - 1);
       });
+
+      it('Should calculate the actual length for a non AWS::Region ref to maintain backward compatability', () => {
+        serverless.service.provider.region = 'ap-northeast-1';
+        let function_name = 'a'.repeat(10);
+        let name_parts = [
+          serverless.service.service,         // test-service , length of 12
+          { Ref: 'bananas'},                  // bananas, length of 7
+          { Ref: 'AWS::Region' },             // ap-northeast-1, length 14
+          function_name,                      // 'a'.repeat(10), length 10
+          'lambdaRole'                        // lambdaRole, length 10
+        ];
+        let role_name_length = plugin.getRoleNameLength(name_parts)
+        let expected = 53 // 12 + 7 + 14 + 10 + 10 == 53
+        assert.equal(role_name_length, expected + name_parts.length - 1);
+      });
     });
     
     describe('#getFunctionRoleName', () => {
