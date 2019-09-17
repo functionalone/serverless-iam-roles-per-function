@@ -66,9 +66,12 @@ class ServerlessIamPerFunctionPlugin {
     let length=0; //calculate the expected length. Sum the length of each part
     for (const part of name_parts) {
       if (part.Ref) {
-        length += this.serverless.service.provider.region.length
-      }
-      else {
+        if (part.Ref === 'AWS::Region') {
+          length += this.serverless.service.provider.region.length;
+        } else {
+          length += part.Ref.length;
+        }
+      } else {
         length += part.length;
       }
     }
