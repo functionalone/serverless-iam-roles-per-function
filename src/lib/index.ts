@@ -16,6 +16,9 @@ class ServerlessIamPerFunctionPlugin {
   serverless: any;
   awsPackagePlugin: any;
   defaultInherit: boolean;
+  customRoleName: boolean;
+  roleNamePrefix: string;
+  roleNameSuffix: string;
 
   /**
    *
@@ -29,6 +32,9 @@ class ServerlessIamPerFunctionPlugin {
       'before:package:finalize': this.createRolesPerFunction.bind(this),
     };
     this.defaultInherit = _.get(this.serverless.service, `custom.${PLUGIN_NAME}.defaultInherit`, false);
+    this.customRoleName = _.get(this.serverless.service, `custom.${PLUGIN_NAME}.customRoleName`, false);
+    this.roleNamePrefix = _.get(this.serverless.service, `custom.${PLUGIN_NAME}.roleNamePrefix`, '');
+    this.roleNameSuffix = _.get(this.serverless.service, `custom.${PLUGIN_NAME}.roleNameSuffix`, '');
   }
 
   /**
@@ -85,10 +91,20 @@ class ServerlessIamPerFunctionPlugin {
     if(!_.isArray(fnJoin) || fnJoin.length !== 2 || !_.isArray(fnJoin[1]) || fnJoin[1].length < 2) {
       this.throwError("Global Role Name is not in exepcted format. Got name: " + JSON.stringify(roleName));
     }
-    fnJoin[1].splice(2, 0, functionName); //insert the function name
-    if(this.getRoleNameLength(fnJoin[1]) > 64 && fnJoin[1][fnJoin[1].length-1] === 'lambdaRole') {
-      // Remove lambdaRole from name to give more space for function name.
-      fnJoin[1].pop();
+    if (this.customRoleName) {
+      if (!this.roleNamePrefix) {
+        this.throwError("Please specify the roleNamePrefix");
+      }
+      fnJoin[1] = [this.roleNamePrefix, functionName];
+      if (this.roleNameSuffix) {
+        fnJoin[1].splice(fnJoin[1].length, 0, this.roleNameSuffix);
+      }
+    } else {
+      fnJoin[1].splice(2, 0, functionName); //insert the function name
+      if(this.getRoleNameLength(fnJoin[1]) > 64 && fnJoin[1][fnJoin[1].length-1] === 'lambdaRole') {
+        // Remove lambdaRole from name to give more space for function name.
+        fnJoin[1].pop();
+      }
     }
     if(this.getRoleNameLength(fnJoin[1]) > 64) { //aws limits to 64 chars the role name
       this.throwError(`auto generated role name for function: ${functionName} is too long (over 64 chars).
