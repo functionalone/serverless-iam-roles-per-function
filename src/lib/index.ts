@@ -219,7 +219,7 @@ class ServerlessIamPerFunctionPlugin {
     //set log statements
     policyStatements[0] = {
       Effect: "Allow",
-      Action: ["logs:CreateLogStream", "logs:PutLogEvents"],
+      Action: ["logs:CreateLogStream", "logs:CreateLogGroup", "logs:PutLogEvents"],
       Resource: [
         {
           'Fn::Sub': 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}' +
