@@ -1,5 +1,5 @@
 {
-  "service": "test-service",  
+  "service": "test-service",
   "provider": {
     "stage": "dev",
     "region": "us-east-1",
@@ -15,7 +15,7 @@
         "Resource": "*"
       }
     ]
-  }, 
+  },
   "functions": {
     "hello": {
       "handler": "handler.hello",
@@ -90,7 +90,7 @@
       "vpc": {}
     },
     "helloNoPerFunction": {
-      "handler": "handler.hello",      
+      "handler": "handler.hello",
       "events": [],
       "name": "test-python-dev-hello",
       "package": {},
@@ -98,14 +98,14 @@
     },
     "helloEmptyIamStatements": {
       "handler": "handler.hello",
-      "iamRoleStatements": [],  
+      "iamRoleStatements": [],
       "events": [],
       "name": "test-python-dev-hello",
       "package": {},
       "vpc": {
         "securityGroupIds": ["sg-xxxxxx"],
         "subnetIds": ["subnet-xxxx", "subnet-yyyy"]
-      }      
+      }
     }
   },
   "resources": {
