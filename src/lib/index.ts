@@ -9,6 +9,8 @@ interface Statement {
   Resource: string | any[];
 }
 
+type ArbitraryCFN = string | ArbitraryCFN[] | { [key: string]: ArbitraryCFN} ;
+
 class ServerlessIamPerFunctionPlugin {
 
   provider: string;
@@ -252,7 +254,7 @@ class ServerlessIamPerFunctionPlugin {
     }
   }
 
-  generateManagedPolicies(functionObject: any, managedPolicies: any[]) {
+  generateManagedPolicies(functionObject: any, managedPolicies: ArbitraryCFN[]) {
     //set vpc if needed
     if (!_.isEmpty(functionObject.vpc) || !_.isEmpty(this.serverless.service.provider.vpc)) {
       managedPolicies.push(
