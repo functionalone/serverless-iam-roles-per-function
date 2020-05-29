@@ -1,0 +1,143 @@
+{
+  "service": "test-service",
+  "provider": {
+    "stage": "dev",
+    "region": "us-east-1",
+    "name": "aws",
+    "runtime": "python2.7",
+    "iamManagedPolicies": [
+      "arn:aws:iam::aws:policy/AmazonRDSFullAccess"
+    ],
+    "iamRoleStatements": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "xray:PutTelemetryRecords",
+          "xray:PutTraceSegments"
+        ],
+        "Resource": "*"
+      }
+    ]
+  },
+  "functions": {
+    "hello": {
+      "handler": "handler.hello",
+      "iamRoleStatements": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "dynamodb:GetItem"
+          ],
+          "Resource": "arn:aws:dynamodb:us-east-1:*:table/test"
+        }
+      ],
+      "events": [],
+      "name": "test-python-dev-hello",
+      "package": {},
+      "vpc": {}
+    },
+    "helloInherit": {
+      "handler": "handler.hello",
+      "iamRoleStatements": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "dynamodb:GetItem"
+          ],
+          "Resource": "arn:aws:dynamodb:us-east-1:*:table/test"
+        }
+      ],
+      "iamManagedPoliciesInherit": true,
+      "events": [],
+      "name": "test-python-dev-hello",
+      "package": {},
+      "vpc": {}
+    },
+    "streamHandler": {
+      "handler": "handler.stream",
+      "iamManagedPolicies": [
+        "arn:aws:iam::aws:policy/AmazonKinesisFullAccess"
+      ],
+      "iamRoleStatements": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "dynamodb:GetItem"
+          ],
+          "Resource": "arn:aws:dynamodb:us-east-1:*:table/test"
+        }
+      ],
+      "events": [
+        {"stream": "arn:aws:dynamodb:us-east-1:1234567890:table/test/stream/2017-10-09T19:39:15.151"}
+      ],
+      "name": "test-python-dev-stream-handler",
+      "onError": "arn:aws:sns:us-east-1:1234567890123:lambda-dlq",
+      "package": {},
+      "vpc": {}
+    },
+    "sqsHandler": {
+      "handler": "handler.sqs",
+      "iamManagedPoliciesInherit": true,
+      "iamManagedPolicies": [
+        "arn:aws:iam::aws:policy/AmazonKinesisFullAccess"
+      ],
+      "iamRoleStatements": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "dynamodb:GetItem"
+          ],
+          "Resource": "arn:aws:dynamodb:us-east-1:*:table/test"
+        }
+      ],
+      "events": [
+        {"sqs": "arn:aws:sqs:us-east-1:1234567890:MyQueue"},
+        {"sqs": {"arn": "arn:aws:sqs:us-east-1:1234567890:MyOtherQueue"}}
+      ],
+      "name": "test-python-dev-sqs-handler",
+      "onError": "arn:aws:sns:us-east-1:1234567890123:lambda-dlq",
+      "package": {},
+      "vpc": {}
+    },
+    "helloNoPerFunction": {
+      "handler": "handler.hello",
+      "events": [],
+      "name": "test-python-dev-hello",
+      "package": {},
+      "vpc": {}
+    },
+    "helloEmptyIamPolicies": {
+      "handler": "handler.hello",
+      "iamManagedPolicies": [],
+      "iamRoleStatements": [],
+      "events": [],
+      "name": "test-python-dev-hello",
+      "package": {},
+      "vpc": {
+        "securityGroupIds": ["sg-xxxxxx"],
+        "subnetIds": ["subnet-xxxx", "subnet-yyyy"]
+      }
+    }
+  },
+  "resources": {
+    "Resources": {
+      "HelloLambdaFunction": {
+        "Type": "AWS::Lambda::Function",
+        "Properties": {
+          "TracingConfig": {
+            "Mode": "Active"
+          }
+        }
+      }
+    }
+  },
+  "package": {
+    "artifact": "test-service.zip",
+    "exclude": [
+      "node_modules/**",
+      "package-lock.json"
+    ],
+    "artifactDirectoryName": "serverless/test-service/dev/1517233344526-2018-01-29T13:42:24.526Z"
+  },
+  "artifact": "test-service.zip"
+}

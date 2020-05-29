@@ -4,6 +4,7 @@ import Plugin from '../lib/index';
 const Serverless = require('serverless/lib/Serverless');
 const sls_config = require('serverless/lib/utils/config');
 const funcWithIamTemplate = require('../../src/test/funcs-with-iam.json');
+const funcWithIamTemplateAndManagedPolicies = require('../../src/test/funcs-with-iam-and-managed-policies');
 const writeFileAtomic = require('write-file-atomic');
 import _ from 'lodash';
 import os from 'os';
@@ -241,10 +242,10 @@ describe('plugin tests', function(this: any) {
           assert.isObject(policy_statements.find((s) => s.Action[0] === "dynamodb:GetItem"), 'per function statements imported upon inherit');
         });
 
-        it('create role for permission inferred from event [dynamodbstream]', () =>{
+        it('create role for permission inferred from event [dynamodbstream]', () => {
           const streamHandlerRole = serverless.service.provider.compiledCloudFormationTemplate.Resources.StreamHandlerIamRoleLambdaExecution;
           assertFunctionRoleName('streamHandler', streamHandlerRole.Properties.RoleName);
-          const policy_statements: any[]  = streamHandlerRole.Properties.Policies[0].PolicyDocument.Statement;
+          const policy_statements: any[] = streamHandlerRole.Properties.Policies[0].PolicyDocument.Statement;
           assert.isObject(
             policy_statements.find((s) =>
               _.isEqual(s.Action, [
@@ -262,11 +263,10 @@ describe('plugin tests', function(this: any) {
 
         });
 
-        it('create role for permission inferred from event [sqs]', () =>{
+        it('create role for permission inferred from event [sqs]', () => {
           const sqsHandlerRole = serverless.service.provider.compiledCloudFormationTemplate.Resources.SqsHandlerIamRoleLambdaExecution;
           assertFunctionRoleName('sqsHandler', sqsHandlerRole.Properties.RoleName);
-          const policy_statements: any[]  = sqsHandlerRole.Properties.Policies[0].PolicyDocument.Statement;
-          JSON.stringify(policy_statements); // ! FIXME
+          const policy_statements: any[] = sqsHandlerRole.Properties.Policies[0].PolicyDocument.Statement;
           assert.isObject(
             policy_statements.find((s) =>
               _.isEqual(s.Action, [
@@ -284,27 +284,27 @@ describe('plugin tests', function(this: any) {
           assert.equal(sqsMapping.DependsOn, "SqsHandlerIamRoleLambdaExecution");
         });
 
-        it('ensure global role is present', ()  => {
+        it('ensure global role is present', () => {
           const helloNoPerFunctionResource = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloNoPerFunctionLambdaFunction;
           assert.isTrue(helloNoPerFunctionResource.DependsOn.indexOf('IamRoleLambdaExecution') >= 0, 'function resource depends on global role');
           assert.equal(helloNoPerFunctionResource.Properties.Role["Fn::GetAtt"][0], 'IamRoleLambdaExecution', "function resource role is set to global role");
         });
 
-        it('ensure empty IAM statements are supported', ()  => {
+        it('ensure empty IAM statements are supported', () => {
           const helloEmptyIamStatementsRole =
             serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloEmptyIamStatementsIamRoleLambdaExecution;
           assertFunctionRoleName('helloEmptyIamStatements', helloEmptyIamStatementsRole.Properties.RoleName);
 
-        // tslint:disable-next-line:max-line-length
-        // assert.equal(helloEmptyIamStatementsRole.Properties.ManagedPolicyArns[0], 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole');
+          // tslint:disable-next-line:max-line-length
+          // assert.equal(helloEmptyIamStatementsRole.Properties.ManagedPolicyArns[0], 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole');
           const helloEmptyFunctionResource = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloEmptyIamStatementsLambdaFunction;
           assert.isTrue(helloEmptyFunctionResource.DependsOn.indexOf(
             'HelloEmptyIamStatementsIamRoleLambdaExecution') >= 0,
             'function resource depends on role',
           );
           assert.equal(helloEmptyFunctionResource.Properties.Role["Fn::GetAtt"][0], 'HelloEmptyIamStatementsIamRoleLambdaExecution',
-          "function resource role is set properly",
-        );
+            "function resource role is set properly",
+          );
         });
       });
 
@@ -390,4 +390,112 @@ describe('plugin tests', function(this: any) {
     });
   });
 
+  describe('managedPolicy handling', () => {
+    let plugin: Plugin;
+    before(loadServerlessConfig(funcWithIamTemplateAndManagedPolicies, tempdir));
+
+    beforeEach(async () => {
+      serverless = await getServerlessInstance(funcWithIamTemplateAndManagedPolicies, tempdir);
+      plugin = new Plugin(serverless);
+    });
+
+    describe('#createRolesPerFunction', () => {
+      describe('should create role per function', () => {
+
+        beforeEach(() => plugin.createRolesPerFunction());
+
+        it('create simple role', () => {
+          const helloRole = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloIamRoleLambdaExecution;
+          assert.isNotEmpty(helloRole);
+          assertFunctionRoleName('hello', helloRole.Properties.RoleName);
+          assert.isEmpty(helloRole.Properties.ManagedPolicyArns, 'function resource role has no managed policy');
+
+          //check depends and role is set properly
+          const helloFunctionResource = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloLambdaFunction;
+          assert.isTrue(helloFunctionResource.DependsOn.indexOf('HelloIamRoleLambdaExecution') >= 0, 'function resource depends on role');
+          assert.equal(helloFunctionResource.Properties.Role["Fn::GetAtt"][0], 'HelloIamRoleLambdaExecution', "function resource role is set properly");
+        });
+
+        it('create role with iamRoleStatementsInherit', () => {
+          const helloInheritRole = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloInheritIamRoleLambdaExecution;
+          assertFunctionRoleName('helloInherit', helloInheritRole.Properties.RoleName);
+          assert.deepEqual(helloInheritRole.Properties.ManagedPolicyArns, ['arn:aws:iam::aws:policy/AmazonRDSFullAccess'], 'managed policy was not inherited');
+        });
+
+        it('create role for permission inferred from event [no inherit]', () => {
+          const streamHandlerRole = serverless.service.provider.compiledCloudFormationTemplate.Resources.StreamHandlerIamRoleLambdaExecution;
+          assertFunctionRoleName('streamHandler', streamHandlerRole.Properties.RoleName);
+          assert.deepEqual(
+            streamHandlerRole.Properties.ManagedPolicyArns,
+            ['arn:aws:iam::aws:policy/AmazonKinesisFullAccess'],
+            'iamManagedPolicies not applies',
+          );
+
+          const policy_statements: any[] = streamHandlerRole.Properties.Policies[0].PolicyDocument.Statement;
+          assert.isObject(
+            policy_statements.find((s) =>
+              _.isEqual(s.Action, [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:DescribeStream",
+                "dynamodb:ListStreams"]) &&
+              _.isEqual(s.Resource, [
+                "arn:aws:dynamodb:us-east-1:1234567890:table/test/stream/2017-10-09T19:39:15.151"])),
+            'stream statements included',
+          );
+          assert.isObject(policy_statements.find((s) => s.Action[0] === "sns:Publish"), 'sns dlq statements included');
+          const streamMapping = serverless.service.provider.compiledCloudFormationTemplate.Resources.StreamHandlerEventSourceMappingDynamodbTest;
+          assert.equal(streamMapping.DependsOn, "StreamHandlerIamRoleLambdaExecution");
+        });
+
+        it('create role for permission inferred from event [inherit]', () => {
+          const sqsHandlerRole = serverless.service.provider.compiledCloudFormationTemplate.Resources.SqsHandlerIamRoleLambdaExecution;
+          assertFunctionRoleName('sqsHandler', sqsHandlerRole.Properties.RoleName);
+          assert.deepEqual(
+            sqsHandlerRole.Properties.ManagedPolicyArns,
+            ['arn:aws:iam::aws:policy/AmazonRDSFullAccess', 'arn:aws:iam::aws:policy/AmazonKinesisFullAccess'],
+            'iamManagedPolicies not applies from function and/or inherited globally',
+            );
+          const policy_statements: any[] = sqsHandlerRole.Properties.Policies[0].PolicyDocument.Statement;
+
+          assert.isObject(
+            policy_statements.find((s) =>
+              _.isEqual(s.Action, [
+                "sqs:ReceiveMessage",
+                "sqs:DeleteMessage",
+                "sqs:GetQueueAttributes"]) &&
+              _.isEqual(s.Resource, [
+                "arn:aws:sqs:us-east-1:1234567890:MyQueue",
+                "arn:aws:sqs:us-east-1:1234567890:MyOtherQueue"])),
+            'sqs statements included',
+          );
+          assert.isObject(policy_statements.find((s) => s.Action[0] === "sns:Publish"), 'sns dlq statements included');
+
+          const sqsMapping = serverless.service.provider.compiledCloudFormationTemplate.Resources.SqsHandlerEventSourceMappingSQSMyQueue;
+          assert.equal(sqsMapping.DependsOn, "SqsHandlerIamRoleLambdaExecution");
+        });
+
+        it('ensure global role is present', () => {
+          const helloNoPerFunctionResource = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloNoPerFunctionLambdaFunction;
+          assert.isTrue(helloNoPerFunctionResource.DependsOn.indexOf('IamRoleLambdaExecution') >= 0, 'function resource depends on global role');
+          assert.equal(helloNoPerFunctionResource.Properties.Role["Fn::GetAtt"][0], 'IamRoleLambdaExecution', "function resource role is set to global role");
+        });
+
+        it('ensure empty IAM managed are supported', () => {
+          const helloEmptyIamPolicyRole =
+            serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloEmptyIamPoliciesIamRoleLambdaExecution;
+          assertFunctionRoleName('helloEmptyIamPolicies', helloEmptyIamPolicyRole.Properties.RoleName);
+
+          const helloEmptyFunctionResource = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloEmptyIamPoliciesLambdaFunction;
+          assert.isTrue(helloEmptyFunctionResource.DependsOn.indexOf(
+            'HelloEmptyIamPoliciesIamRoleLambdaExecution') >= 0,
+            'function resource depends on role',
+          );
+          assert.equal(helloEmptyFunctionResource.Properties.Role["Fn::GetAtt"][0], 'HelloEmptyIamPoliciesIamRoleLambdaExecution',
+            "function resource role is set properly",
+          );
+        });
+      });
+    });
+  });
 });

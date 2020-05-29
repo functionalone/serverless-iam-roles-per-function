@@ -269,7 +269,6 @@ class ServerlessIamPerFunctionPlugin {
         }
         );
     }
-
     //add global statements
     if((functionObject.iamManagedPoliciesInherit || (this.defaultInherit && functionObject.iamManagedPoliciesInherit !== false))
         && !_.isEmpty(this.serverless.service.provider.iamManagedPolicies)) {
