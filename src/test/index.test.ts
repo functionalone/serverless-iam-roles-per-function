@@ -495,6 +495,17 @@ describe('plugin tests', function(this: any) {
             "function resource role is set properly",
           );
         });
+
+        it('ensure no duplicated IAM managed policies', () => {
+          const helloDuplicateIamPolicyRole =
+            serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloDuplicateIamPoliciesIamRoleLambdaExecution;
+          assertFunctionRoleName('helloDuplicateIamPolicies', helloDuplicateIamPolicyRole.Properties.RoleName);
+          assert.deepEqual(
+            helloDuplicateIamPolicyRole.Properties.ManagedPolicyArns,
+            ['arn:aws:iam::aws:policy/AmazonRDSFullAccess', 'arn:aws:iam::aws:policy/AmazonKinesisFullAccess'],
+            'managed policies were not merged correctly',
+          );
+        });
       });
     });
   });

@@ -197,22 +197,23 @@ class ServerlessIamPerFunctionPlugin {
     return res;
   }
 
-  generateInlinePolicy(functionObject: any, policyStatements: Statement[]) {
-    //set log statements
-    policyStatements[0] = {
-      Effect: "Allow",
-      Action: [
-        "logs:CreateLogGroup",
-        "logs:CreateLogStream",
-        "logs:PutLogEvents",
-      ],
-      Resource: [
-        {
-          'Fn::Sub': 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}' +
-              `:log-group:${this.serverless.providers.aws.naming.getLogGroupName(functionObject.name)}:*:*`,
-        },
-      ],
-    };
+  collectInlinePolicy(functionObject: any) {
+    const policyStatements: Statement[] = [
+      { //set log statements
+        Effect: "Allow",
+        Action: [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+        ],
+        Resource: [
+          {
+            'Fn::Sub': 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}' +
+            `:log-group:${this.serverless.providers.aws.naming.getLogGroupName(functionObject.name)}:*:*`,
+          },
+        ],
+      }
+    ];
 
     //set stream statements (if needed)
     const streamStatements = this.getStreamStatements(functionObject);
@@ -252,9 +253,11 @@ class ServerlessIamPerFunctionPlugin {
         policyStatements.push(s);
       }
     }
+    return policyStatements;
   }
 
-  generateManagedPolicies(functionObject: any, managedPolicies: ArbitraryCFN[]) {
+  collectManagedPolicies(functionObject: any) {
+    const managedPolicies: ArbitraryCFN[] = [];
     //set vpc if needed
     if (!_.isEmpty(functionObject.vpc) || !_.isEmpty(this.serverless.service.provider.vpc)) {
       managedPolicies.push(
@@ -283,6 +286,7 @@ class ServerlessIamPerFunctionPlugin {
         managedPolicies.push(s);
       }
     }
+    return _.uniq(managedPolicies);
   }
 
   /**
@@ -298,7 +302,7 @@ class ServerlessIamPerFunctionPlugin {
     }
 
     if(functionObject.role) {
-      this.throwError("Defing function with both 'role' and 'iamRoleStatements' is not supported. Function name: " + functionName);
+      this.throwError("Defining function with both 'role' and 'iamRoleStatements' is not supported. Function name: " + functionName);
     }
 
     this.validateStatements(functionObject.iamRoleStatements);
@@ -309,14 +313,10 @@ class ServerlessIamPerFunctionPlugin {
     const functionIamRole = _.cloneDeep(globalIamRole);
 
     // rebuild managed policies
-    const managedPolicies: string[] = [];
-    functionIamRole.Properties.ManagedPolicyArns = managedPolicies;
-    this.generateManagedPolicies(functionObject, managedPolicies);
+    functionIamRole.Properties.ManagedPolicyArns = this.collectManagedPolicies(functionObject);
 
     // rebuild the inline policy
-    const policyStatements: Statement[] = [];
-    functionIamRole.Properties.Policies[0].PolicyDocument.Statement = policyStatements;
-    this.generateInlinePolicy(functionObject, policyStatements);
+    functionIamRole.Properties.Policies[0].PolicyDocument.Statement = this.collectInlinePolicy(functionObject);
 
     functionIamRole.Properties.RoleName = functionObject.iamRoleStatementsName || this.getFunctionRoleName(functionName);
     const roleResourceName = this.serverless.providers.aws.naming.getNormalizedFunctionName(functionName) + globalRoleName;

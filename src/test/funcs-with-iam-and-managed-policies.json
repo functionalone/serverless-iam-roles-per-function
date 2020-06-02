@@ -117,6 +117,18 @@
         "securityGroupIds": ["sg-xxxxxx"],
         "subnetIds": ["subnet-xxxx", "subnet-yyyy"]
       }
+    },
+    "helloDuplicateIamPolicies": {
+      "handler": "handler.hello",
+      "iamManagedPoliciesInherit": true,
+      "iamManagedPolicies": [
+        "arn:aws:iam::aws:policy/AmazonRDSFullAccess",
+        "arn:aws:iam::aws:policy/AmazonKinesisFullAccess"
+      ],
+      "iamRoleStatements": [],
+      "events": [],
+      "name": "test-python-dev-hello",
+      "package": {}
     }
   },
   "resources": {
