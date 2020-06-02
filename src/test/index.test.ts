@@ -506,6 +506,17 @@ describe('plugin tests', function(this: any) {
             'managed policies were not merged correctly',
           );
         });
+
+        it('ensure no duplicated vpc IAM managed policies', () => {
+          const helloNoDuplicateVpcIamPolicyRole =
+            serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloNoDuplicateVpcIamPoliciesIamRoleLambdaExecution;
+          assertFunctionRoleName('helloNoDuplicateVpcIamPolicies', helloNoDuplicateVpcIamPolicyRole.Properties.RoleName);
+          assert.deepEqual(
+            helloNoDuplicateVpcIamPolicyRole.Properties.ManagedPolicyArns,
+            ['arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole'],
+            'some issue with no AWSLambdaVPCAccessExecutionRole duplicate mechanism',
+          );
+        });
       });
     });
   });

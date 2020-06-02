@@ -118,6 +118,20 @@
         "subnetIds": ["subnet-xxxx", "subnet-yyyy"]
       }
     },
+    "helloNoDuplicateVpcIamPolicies": {
+      "handler": "handler.hello",
+      "iamManagedPolicies": [
+        "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+      ],
+      "iamRoleStatements": [],
+      "events": [],
+      "name": "test-python-dev-hello",
+      "package": {},
+      "vpc": {
+        "securityGroupIds": ["sg-xxxxxx"],
+        "subnetIds": ["subnet-xxxx", "subnet-yyyy"]
+      }
+    },
     "helloDuplicateIamPolicies": {
       "handler": "handler.hello",
       "iamManagedPoliciesInherit": true,

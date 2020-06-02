@@ -212,7 +212,7 @@ class ServerlessIamPerFunctionPlugin {
             `:log-group:${this.serverless.providers.aws.naming.getLogGroupName(functionObject.name)}:*:*`,
           },
         ],
-      }
+      },
     ];
 
     //set stream statements (if needed)
@@ -258,20 +258,6 @@ class ServerlessIamPerFunctionPlugin {
 
   collectManagedPolicies(functionObject: any) {
     const managedPolicies: ArbitraryCFN[] = [];
-    //set vpc if needed
-    if (!_.isEmpty(functionObject.vpc) || !_.isEmpty(this.serverless.service.provider.vpc)) {
-      managedPolicies.push(
-        {
-          'Fn::Join': ['',
-            [
-              'arn:',
-              { Ref: 'AWS::Partition' },
-              ':iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole',
-            ],
-          ],
-        }
-        );
-    }
     //add global statements
     if((functionObject.iamManagedPoliciesInherit || (this.defaultInherit && functionObject.iamManagedPoliciesInherit !== false))
         && !_.isEmpty(this.serverless.service.provider.iamManagedPolicies)) {
@@ -284,6 +270,23 @@ class ServerlessIamPerFunctionPlugin {
     if(_.isArray(functionObject.iamManagedPolicies)) {
       for (const s of functionObject.iamManagedPolicies) {
         managedPolicies.push(s);
+      }
+    }
+
+    //set vpc if needed
+    if (!_.isEmpty(functionObject.vpc) || !_.isEmpty(this.serverless.service.provider.vpc)) {
+      if (!_.includes(managedPolicies, 'arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole')) {
+        managedPolicies.push(
+          {
+            'Fn::Join': ['',
+              [
+                'arn:',
+                { Ref: 'AWS::Partition' },
+                ':iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole',
+              ],
+            ],
+          },
+        );
       }
     }
     return _.uniq(managedPolicies);
