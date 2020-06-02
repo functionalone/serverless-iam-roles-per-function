@@ -14,7 +14,7 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "compile": "tsc",
     "watch": "tsc -w",
-    "prepublishOnly": "npm run clean && npm run compile",
+    "prepare": "npm run clean && npm run compile",
     "release": "standard-version"
   },
   "author": "Functional One, Ltd.",
