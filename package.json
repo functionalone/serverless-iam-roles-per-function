@@ -1,11 +1,11 @@
 {
-  "name": "serverless-iam-roles-per-function",
+  "name": "serverless-granular-iam",
   "private": false,
   "version": "2.0.2",
   "engines": {
     "node": ">=6.10.0"
   },
-  "description": "A Serverless plugin to define IAM Role statements as part of the function definition block",
+  "description": "A Serverless plugin to define IAM Role statements as part of the function definition block [serverless-iam-roles-per-function temporary fork]",
   "main": "dist/lib/index.js",
   "scripts": {
     "clean": "rimraf dist",
@@ -18,10 +18,13 @@
     "release": "standard-version"
   },
   "author": "Functional One, Ltd.",
+  "maintainers": [
+    "Adrien Becchis <adrien.becchis@coorpacademy.com> (https://github.com/AdrieanKhisbe/)"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/functionalone/serverless-iam-roles-per-function"
+    "url": "https://github.com/CoorpAcademy/serverless-granular-iam"
   },
   "keywords": [
     "aws",

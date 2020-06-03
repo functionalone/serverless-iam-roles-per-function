@@ -1,24 +1,27 @@
-# Serverless IAM Roles Per Function Plugin
+# serverless-granular-iam [*Serverless IAM Roles Per Function Plugin* **Fork**]
 
-[![serverless][sls-image]][sls-url] 
-[![npm package][npm-image]][npm-url] 
-[![Build Status][travis-image]][travis-url] 
-[![Coverage Status][coveralls-image]][coveralls-url] 
+[![serverless][sls-image]][sls-url]
+[![npm package][npm-image]][npm-url]
+[![Build Status][travis-image]][travis-url]
+[![Coverage Status][coveralls-image]][coveralls-url]
 [![Dependencies Status][david-image]][david-url]
-[![Downloads][downloads-image]][npm-url] 
+[![Downloads][downloads-image]][npm-url]
 
-A Serverless plugin to easily define IAM roles per function via the use of `iamRoleStatements` at the function definition block. 
+A Serverless plugin to easily define IAM roles per function via the use of `iamRoleStatements` at the function definition block.
+
+:rotating_light: This is a fork from [functionalone/serverless-granular-iam](https://github.com/functionalone/serverless-granular-iam)
+This is meant to be temporary until _iamManagedPolicies_ are supported with [#19](https://github.com/functionalone/serverless-granular-iam/pull/19) landing.
 
 ## Installation
 ```
-npm install --save-dev serverless-iam-roles-per-function
+npm install --save-dev serverless-granular-iam
 ```
 
 Add the plugin to serverless.yml:
 
 ```yaml
 plugins:
-  - serverless-iam-roles-per-function
+  - serverless-granular-iam
 ```
 
 **Note**: Node 6.10 or higher runtime required.
@@ -33,17 +36,17 @@ functions:
     handler: handler.get
     iamRoleStatementsName: my-custom-role-name #optional custom role name setting instead of the default generated one
     iamRoleStatements:
-      - Effect: "Allow"        
+      - Effect: "Allow"
         Action:
-          - dynamodb:GetItem        
+          - dynamodb:GetItem
         Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/mytable"
     ...
   func2:
-    handler: handler.put    
+    handler: handler.put
     iamRoleStatements:
-      - Effect: "Allow"        
+      - Effect: "Allow"
         Action:
-          - dynamodb:PutItem        
+          - dynamodb:PutItem
         Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/mytable"
     ...
 ```
@@ -55,7 +58,7 @@ if `iamRoleStatements` are not defined at the function level default behavior is
 ```yaml
 functions:
   func1:
-    handler: handler.get    
+    handler: handler.get
     iamRoleStatements: []
     vpc:
       securityGroupIds:
@@ -82,9 +85,9 @@ functions:
     handler: handler.get
     iamRoleStatementsInherit: true
     iamRoleStatements:
-      - Effect: "Allow"        
+      - Effect: "Allow"
         Action:
-          - dynamodb:GetItem        
+          - dynamodb:GetItem
         Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/mytable"
 ```
 The generated role for `func1` will contain both the statements defined at the provider level and the ones defined at the function level.
@@ -93,7 +96,7 @@ If you wish to change the default behavior to `inherit` instead of `override` it
 
 ```yaml
 custom:
-  serverless-iam-roles-per-function:
+  serverless-granular-iam:
     defaultInherit: true
 ```
 ## Role Names
@@ -105,20 +108,20 @@ AWS has a 64 character limit on role names. If the default naming exceeds 64 cha
 ```
 auto generated role name for function: ${functionName} is too long (over 64 chars).
 Try setting a custom role name using the property: iamRoleStatementsName.
-``` 
+```
 In this case you should set the role name using the property `iamRoleStatementsName`. For example:
 ```yaml
 functions:
   func1:
     handler: handler.get
-    iamRoleStatementsName: my-custom-role-name 
+    iamRoleStatementsName: my-custom-role-name
     iamRoleStatements:
-      - Effect: "Allow"        
+      - Effect: "Allow"
         Action:
-          - dynamodb:GetItem        
+          - dynamodb:GetItem
         Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/mytable"
     ...
-```  
+```
 
 ## More Info
 
@@ -128,15 +131,15 @@ functions:
 
 **Note**: Serverless Framework provides support for defining custom IAM roles on a per function level through the use of the `role` property and creating CloudFormation resources, as documented [here](https://serverless.com/framework/docs/providers/aws/guide/iam#custom-iam-roles). This plugin doesn't support defining both the `role` property and `iamRoleStatements` at the function level.
 
-[npm-image]:https://img.shields.io/npm/v/serverless-iam-roles-per-function.svg
-[npm-url]:http://npmjs.org/package/serverless-iam-roles-per-function
+[npm-image]:https://img.shields.io/npm/v/serverless-granular-iam.svg
+[npm-url]:http://npmjs.org/package/serverless-granular-iam
 [sls-image]:http://public.serverless.com/badges/v3.svg
 [sls-url]:http://www.serverless.com
-[travis-image]:https://travis-ci.org/functionalone/serverless-iam-roles-per-function.svg?branch=master
-[travis-url]:https://travis-ci.org/functionalone/serverless-iam-roles-per-function
-[david-image]:https://david-dm.org/functionalone/serverless-iam-roles-per-function/status.svg
-[david-url]:https://david-dm.org/functionalone/serverless-iam-roles-per-function
-[coveralls-image]:https://coveralls.io/repos/github/functionalone/serverless-iam-roles-per-function/badge.svg?branch=master
-[coveralls-url]:https://coveralls.io/github/functionalone/serverless-iam-roles-per-function?branch=master
-[downloads-image]:https://img.shields.io/npm/dm/serverless-iam-roles-per-function.svg
+[travis-image]:https://travis-ci.org/functionalone/serverless-granular-iam.svg?branch=master
+[travis-url]:https://travis-ci.org/functionalone/serverless-granular-iam
+[david-image]:https://david-dm.org/functionalone/serverless-granular-iam/status.svg
+[david-url]:https://david-dm.org/functionalone/serverless-granular-iam
+[coveralls-image]:https://coveralls.io/repos/github/functionalone/serverless-granular-iam/badge.svg?branch=master
+[coveralls-url]:https://coveralls.io/github/functionalone/serverless-granular-iam?branch=master
+[downloads-image]:https://img.shields.io/npm/dm/serverless-granular-iam.svg
 
