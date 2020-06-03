@@ -284,12 +284,6 @@ describe('plugin tests', function(this: any) {
           assert.equal(sqsMapping.DependsOn, "SqsHandlerIamRoleLambdaExecution");
         });
 
-        it('ensure global role is present', () => {
-          const helloNoPerFunctionResource = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloNoPerFunctionLambdaFunction;
-          assert.isTrue(helloNoPerFunctionResource.DependsOn.indexOf('IamRoleLambdaExecution') >= 0, 'function resource depends on global role');
-          assert.equal(helloNoPerFunctionResource.Properties.Role["Fn::GetAtt"][0], 'IamRoleLambdaExecution', "function resource role is set to global role");
-        });
-
         it('ensure empty IAM statements are supported', () => {
           const helloEmptyIamStatementsRole =
             serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloEmptyIamStatementsIamRoleLambdaExecution;
@@ -473,12 +467,6 @@ describe('plugin tests', function(this: any) {
 
           const sqsMapping = serverless.service.provider.compiledCloudFormationTemplate.Resources.SqsHandlerEventSourceMappingSQSMyQueue;
           assert.equal(sqsMapping.DependsOn, "SqsHandlerIamRoleLambdaExecution");
-        });
-
-        it('ensure global role is present', () => {
-          const helloNoPerFunctionResource = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloNoPerFunctionLambdaFunction;
-          assert.isTrue(helloNoPerFunctionResource.DependsOn.indexOf('IamRoleLambdaExecution') >= 0, 'function resource depends on global role');
-          assert.equal(helloNoPerFunctionResource.Properties.Role["Fn::GetAtt"][0], 'IamRoleLambdaExecution', "function resource role is set to global role");
         });
 
         it('ensure empty IAM managed are supported', () => {
