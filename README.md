@@ -135,11 +135,11 @@ functions:
 [npm-url]:http://npmjs.org/package/serverless-granular-iam
 [sls-image]:http://public.serverless.com/badges/v3.svg
 [sls-url]:http://www.serverless.com
-[travis-image]:https://travis-ci.org/functionalone/serverless-granular-iam.svg?branch=master
-[travis-url]:https://travis-ci.org/functionalone/serverless-granular-iam
-[david-image]:https://david-dm.org/functionalone/serverless-granular-iam/status.svg
-[david-url]:https://david-dm.org/functionalone/serverless-granular-iam
-[coveralls-image]:https://coveralls.io/repos/github/functionalone/serverless-granular-iam/badge.svg?branch=master
-[coveralls-url]:https://coveralls.io/github/functionalone/serverless-granular-iam?branch=master
+[travis-image]:https://travis-ci.org/CoorpAcademy/serverless-granular-iam.svg?branch=master
+[travis-url]:https://travis-ci.org/CoorpAcademy/serverless-granular-iam
+[david-image]:https://david-dm.org/CoorpAcademy/serverless-granular-iam/status.svg
+[david-url]:https://david-dm.org/CoorpAcademy/serverless-granular-iam
+[coveralls-image]:https://coveralls.io/repos/github/CoorpAcademy/serverless-granular-iam/badge.svg?branch=master
+[coveralls-url]:https://coveralls.io/github/CoorpAcademy/serverless-granular-iam?branch=master
 [downloads-image]:https://img.shields.io/npm/dm/serverless-granular-iam.svg
 
