@@ -102,15 +102,6 @@ describe('plugin tests', function(this: any) {
         }]; 
         assert.throws(() => {plugin.validateStatements(bad_statement);});
       });
-
-      it('should throw error if no awsPackage plugin', () => {
-        const indx = serverless.pluginManager.plugins.findIndex((p: any) => p.constructor.name === "AwsPackage");
-        assert.isAtLeast(indx, 0);
-        serverless.pluginManager.plugins.splice(indx, 1);
-        assert.throws(() => {
-          plugin.validateStatements(statements);
-        });
-      });
     });
 
     describe('#getRoleNameLength', () => {
