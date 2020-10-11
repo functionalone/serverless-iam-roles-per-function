@@ -13,6 +13,7 @@
     "test": "nyc mocha --require ts-node/register --require source-map-support/register  ./src/test/**/*.test.ts",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "compile": "tsc",
+    "lint": "./node_modules/tslint/bin/tslint --fix ./src/lib/index.ts",
     "watch": "tsc -w",
     "prepublishOnly": "npm run clean && npm run compile",
     "release": "standard-version"
