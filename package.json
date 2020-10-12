@@ -51,7 +51,7 @@
     "npm-get-version": "^1.0.2",
     "nyc": "^14.1.1",
     "rimraf": "^3.0.0",
-    "serverless": "^1.51.0",
+    "serverless": "^2.5.0",
     "source-map-support": "^0.5.13",
     "standard-version": "^7.0.0",
     "ts-node": "^8.3.0",

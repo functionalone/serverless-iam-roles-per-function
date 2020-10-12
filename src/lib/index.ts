@@ -66,8 +66,8 @@ class ServerlessIamPerFunctionPlugin {
         return missing.length === 0
           ? null
           : `statement ${i} is missing the following properties: ${missing
-            .map((m) => m.join(' / '))
-            .join(', ')}`;
+              .map((m) => m.join(' / '))
+              .join(', ')}`;
       });
       const flawed = descriptions.filter((curr) => curr);
       if (flawed.length) {
@@ -121,7 +121,7 @@ class ServerlessIamPerFunctionPlugin {
     ) {
       this.throwError(
         'Global Role Name is not in exepcted format. Got name: ' +
-        JSON.stringify(roleName),
+          JSON.stringify(roleName),
       );
     }
     fnJoin[1].splice(2, 0, functionName); //insert the function name
@@ -167,7 +167,7 @@ class ServerlessIamPerFunctionPlugin {
     ) {
       this.throwError(
         'Function Resource is not in exepcted format. For function name: ' +
-        functionName,
+          functionName,
       );
     }
     functionResource.DependsOn = [roleName].concat(
@@ -276,7 +276,7 @@ class ServerlessIamPerFunctionPlugin {
     if (functionObject.role) {
       this.throwError(
         "Defing function with both 'role' and 'iamRoleStatements' is not supported. Function name: " +
-        functionName,
+          functionName,
       );
     }
     this.validateStatements(functionObject.iamRoleStatements);
