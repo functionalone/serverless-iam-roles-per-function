@@ -2,9 +2,7 @@
 import {assert} from 'chai';
 import Plugin from '../lib/index';
 const Serverless = require('serverless/lib/Serverless');
-const sls_config = require('serverless/lib/utils/config');
 const funcWithIamTemplate = require('../../src/test/funcs-with-iam.json');
-const writeFileAtomic = require('write-file-atomic');
 import _ from 'lodash';
 import os from 'os';
 import fs from 'fs';
@@ -28,17 +26,6 @@ describe('plugin tests', function(this: any) {
         throw error;
       }
     }
-    const rc = sls_config.CONFIG_FILE_PATH;
-    writeFileAtomic.sync(rc, JSON.stringify({
-      userId: null,
-      frameworkId: "test",
-      trackingDisabled: true,
-      enterpriseDisabled: true,
-      meta: {
-        created_at: 1567187050,
-        updated_at: null,
-      },
-    }, null, 2));
     const packageFile = path.join(dir, funcWithIamTemplate.package.artifact);
     fs.writeFileSync(packageFile, "test123");    
     console.log('### serverless version: %s ###', (new Serverless()).version);    
