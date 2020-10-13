@@ -242,7 +242,8 @@ describe('plugin tests', function(this: any) {
         assert.equal(sqsMapping.DependsOn, "SqsHandlerIamRoleLambdaExecution");
         //verify helloNoPerFunction should have global role
         const helloNoPerFunctionResource = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloNoPerFunctionLambdaFunction;
-        assert.isTrue(helloNoPerFunctionResource.DependsOn.indexOf('IamRoleLambdaExecution') >= 0, 'function resource depends on global role');
+        //no DependsOn is added when using global role: https://github.com/serverless/serverless/blob/9303d8ecd46059121082c3308e5fe5385e0be38e/lib/plugins/aws/package/compile/functions/index.js#L42 
+        assert.isFalse(helloNoPerFunctionResource.DependsOn.indexOf('IamRoleLambdaExecution') >= 0, 'function resource depends on global role');
         assert.equal(helloNoPerFunctionResource.Properties.Role["Fn::GetAtt"][0], 'IamRoleLambdaExecution', "function resource role is set to global role"); 
         //verify helloEmptyIamStatements
         const helloEmptyIamStatementsRole = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloEmptyIamStatementsIamRoleLambdaExecution;
