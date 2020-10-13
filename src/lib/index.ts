@@ -77,7 +77,7 @@ class ServerlessIamPerFunctionPlugin {
         ' where each object has Effect, Action / NotAction, Resource / NotResource fields.',	
         ` Specifically, ${violationsFound}`,	
       ].join('');	
-      throw new this.serverless.classes.Error(errorMessage);	
+      this.throwError(errorMessage);	
     }	
   }
 
