@@ -2,9 +2,7 @@
 import {assert} from 'chai';
 import Plugin from '../lib/index';
 const Serverless = require('serverless/lib/Serverless');
-const sls_config = require('serverless/lib/utils/config');
 const funcWithIamTemplate = require('../../src/test/funcs-with-iam.json');
-const writeFileAtomic = require('write-file-atomic');
 import _ from 'lodash';
 import os from 'os';
 import fs from 'fs';
@@ -28,17 +26,6 @@ describe('plugin tests', function(this: any) {
         throw error;
       }
     }
-    const rc = sls_config.CONFIG_FILE_PATH;
-    writeFileAtomic.sync(rc, JSON.stringify({
-      userId: null,
-      frameworkId: "test",
-      trackingDisabled: true,
-      enterpriseDisabled: true,
-      meta: {
-        created_at: 1567187050,
-        updated_at: null,
-      },
-    }, null, 2));
     const packageFile = path.join(dir, funcWithIamTemplate.package.artifact);
     fs.writeFileSync(packageFile, "test123");    
     console.log('### serverless version: %s ###', (new Serverless()).version);    
@@ -114,15 +101,6 @@ describe('plugin tests', function(this: any) {
           Resource: "*",
         }]; 
         assert.throws(() => {plugin.validateStatements(bad_statement);});
-      });
-
-      it('should throw error if no awsPackage plugin', () => {
-        const indx = serverless.pluginManager.plugins.findIndex((p: any) => p.constructor.name === "AwsPackage");
-        assert.isAtLeast(indx, 0);
-        serverless.pluginManager.plugins.splice(indx, 1);
-        assert.throws(() => {
-          plugin.validateStatements(statements);
-        });
       });
     });
 
@@ -264,7 +242,8 @@ describe('plugin tests', function(this: any) {
         assert.equal(sqsMapping.DependsOn, "SqsHandlerIamRoleLambdaExecution");
         //verify helloNoPerFunction should have global role
         const helloNoPerFunctionResource = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloNoPerFunctionLambdaFunction;
-        assert.isTrue(helloNoPerFunctionResource.DependsOn.indexOf('IamRoleLambdaExecution') >= 0, 'function resource depends on global role');
+        //no DependsOn is added when using global role: https://github.com/serverless/serverless/blob/9303d8ecd46059121082c3308e5fe5385e0be38e/lib/plugins/aws/package/compile/functions/index.js#L42 
+        assert.isFalse(helloNoPerFunctionResource.DependsOn.indexOf('IamRoleLambdaExecution') >= 0, 'function resource depends on global role');
         assert.equal(helloNoPerFunctionResource.Properties.Role["Fn::GetAtt"][0], 'IamRoleLambdaExecution', "function resource role is set to global role"); 
         //verify helloEmptyIamStatements
         const helloEmptyIamStatementsRole = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloEmptyIamStatementsIamRoleLambdaExecution;
