@@ -14,6 +14,11 @@ A Serverless plugin to easily define IAM roles per function via the use of `iamR
 npm install --save-dev serverless-iam-roles-per-function
 ```
 
+Or if you want to try out the `next` upcoming version:
+```
+npm install --save-dev serverless-iam-roles-per-function@next
+```
+
 Add the plugin to serverless.yml:
 
 ```yaml
