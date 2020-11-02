@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.0.0](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v2.0.2...v3.0.0) (2020-11-02)
+
+
+### Features
+
+* Support for Serverless v2.5.0 ([#53](https://github.com/functionalone/serverless-iam-roles-per-function/issues/53)) ([09e56ae](https://github.com/functionalone/serverless-iam-roles-per-function/commit/09e56ae))
+
+
+### Features
+
+* nodejs 12 support ([#32](https://github.com/functionalone/serverless-iam-roles-per-function/issues/32)) ([4dd58a2](https://github.com/functionalone/serverless-iam-roles-per-function/commit/4dd58a2))
+* Use resolved region name in counting length of role name ([#33](https://github.com/functionalone/serverless-iam-roles-per-function/issues/33)) ([f9fd677](https://github.com/functionalone/serverless-iam-roles-per-function/commit/f9fd677)), closes [#26](https://github.com/functionalone/serverless-iam-roles-per-function/issues/26)
+
 ### [2.0.2](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v2.0.1...v2.0.2) (2019-08-30)
 
 
