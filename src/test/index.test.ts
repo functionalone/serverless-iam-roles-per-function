@@ -335,4 +335,37 @@ describe('plugin tests', function(this: any) {
     });    
   });
 
+  describe('custom role names set', () => {    
+    let plugin: Plugin;
+
+    beforeEach(() => {      
+      //set customRoleName
+      _.set(serverless.service, "custom.serverless-iam-roles-per-function.customRoleName", true);
+      //set roleNamePrefix
+      _.set(serverless.service, "custom.serverless-iam-roles-per-function.roleNamePrefix", "prefix");
+      _.set(serverless.service, "custom.serverless-iam-roles-per-function.roleNameSuffix", "suffix");
+      plugin = new Plugin(serverless);
+    });
+
+    describe('#constructor()', () => {      
+      it('custom role names properly set', () => {
+        assert.isTrue(plugin.customRoleName);
+        assert.equal(plugin.roleNamePrefix, "prefix");
+        assert.equal(plugin.roleNameSuffix, "suffix");
+      });
+    });
+
+    describe('#createRolesPerFunction', () => {
+      it('should create role per function', () => {
+        plugin.createRolesPerFunction();
+        const helloRole = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloIamRoleLambdaExecution;
+        assert.isNotEmpty(helloRole);
+        assertFunctionRoleName('hello', helloRole.Properties.RoleName);
+        assert.equal(helloRole.Properties.RoleName['Fn::Join'][1][0], "prefix");
+        assert.equal(helloRole.Properties.RoleName['Fn::Join'][1][1], "hello");
+        assert.equal(helloRole.Properties.RoleName['Fn::Join'][1][2], "suffix");
+      });
+    });    
+  });
+
 });

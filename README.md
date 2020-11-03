@@ -106,6 +106,14 @@ The plugin uses a naming convention for function roles which is similar to the n
 ```
 <service-name>-<stage>-<function-name>-<region>-lambdaRole
 ```
+You can specify a custom role name:
+```yml
+custom:
+  serverless-iam-roles-per-function:
+    customRoleName: true # defaults to false
+    roleNamePrefix: prefix # required if `customRoleName` is `true`
+    roleNameSuffix: suffix # optional
+```
 AWS has a 64 character limit on role names. If the default naming exceeds 64 chars the plugin will remove the suffix: `-lambdaRole` to shorten the name. If it still exceeds 64 chars an error will be thrown containing a message of the form:
 ```
 auto generated role name for function: ${functionName} is too long (over 64 chars).
