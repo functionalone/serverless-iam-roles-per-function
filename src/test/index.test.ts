@@ -78,6 +78,10 @@ describe('plugin tests', function(this: any) {
         assert.instanceOf(plugin, Plugin);
       });
 
+      it('should NOT initialize the plugin for non AWS providers', () => {
+        assert.throws(() => new Plugin({ service: { provider: { name: 'not-aws' } } }));
+      });
+
       it('defaultInherit should be false', () => {
         assert.isFalse(plugin.defaultInherit);
       });
