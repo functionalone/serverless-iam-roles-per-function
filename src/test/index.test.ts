@@ -21,7 +21,7 @@ describe('plugin tests', function(this: any) {
     try {
       fs.mkdirSync(dir);
     } catch (error) {
-      if(error.code !== 'EEXIST') {
+      if (error.code !== 'EEXIST') {
         console.log('failed to create dir: %s, error: ', dir, error);
         throw error;
       }
@@ -42,11 +42,11 @@ describe('plugin tests', function(this: any) {
     };
     serverless.config.servicePath = tempdir;
     serverless.pluginManager.loadAllPlugins();
-    let compile_hooks: any[] = serverless.pluginManager.getHooks('package:setupProviderConfiguration');
-    compile_hooks = compile_hooks.concat(
+    let compileHooks: any[] = serverless.pluginManager.getHooks('package:setupProviderConfiguration');
+    compileHooks = compileHooks.concat(
       serverless.pluginManager.getHooks('package:compileFunctions'),
       serverless.pluginManager.getHooks('package:compileEvents'));
-    for (const ent of compile_hooks) {
+    for (const ent of compileHooks) {
       try {
         await ent.hook();
       } catch (error) {
@@ -102,61 +102,72 @@ describe('plugin tests', function(this: any) {
       });
 
       it('should throw an error for invalid statement', () => {
-        const bad_statement = [{ //missing effect
+        const badStatement = [{ // missing effect
           Action: [
             'xray:PutTelemetryRecords',
             'xray:PutTraceSegments',
           ],
           Resource: '*',
         }];
-        assert.throws(() => {plugin.validateStatements(bad_statement);});
+        assert.throws(() => {plugin.validateStatements(badStatement);});
+      });
+
+      it('should throw an error for non array type of statement', () => {
+        const badStatement = { // missing effect
+          Action: [
+            'xray:PutTelemetryRecords',
+            'xray:PutTraceSegments',
+          ],
+          Resource: '*',
+        };
+        assert.throws(() => {plugin.validateStatements(badStatement);});
       });
     });
 
     describe('#getRoleNameLength', () => {
       it('Should calculate the accurate role name length us-east-1', () => {
         serverless.service.provider.region = 'us-east-1';
-        const function_name = 'a'.repeat(10);
-        const name_parts = [
+        const functionName = 'a'.repeat(10);
+        const nameParts = [
           serverless.service.service,         // test-service , length of 12
           serverless.service.provider.stage,  // dev, length of 3 : 15
           { Ref: 'AWS::Region' },             // us-east-1, length 9 : 24
-          function_name,                      // 'a'.repeat(10), length 10 : 34
+          functionName,                      // 'a'.repeat(10), length 10 : 34
           'lambdaRole',                       // lambdaRole, length 10 : 44
         ];
-        const role_name_length = plugin.getRoleNameLength(name_parts);
+        const roleNameLength = plugin.getRoleNameLength(nameParts);
         const expected = 44; // 12 + 3 + 9 + 10 + 10 == 44
-        assert.equal(role_name_length, expected + name_parts.length - 1);
+        assert.equal(roleNameLength, expected + nameParts.length - 1);
       });
 
       it('Should calculate the accurate role name length ap-northeast-1', () => {
         serverless.service.provider.region = 'ap-northeast-1';
-        const function_name = 'a'.repeat(10);
-        const name_parts = [
+        const functionName = 'a'.repeat(10);
+        const nameParts = [
           serverless.service.service,         // test-service , length of 12
           serverless.service.provider.stage,  // dev, length of 3
           { Ref: 'AWS::Region' },             // ap-northeast-1, length 14
-          function_name,                      // 'a'.repeat(10), length 10
+          functionName,                      // 'a'.repeat(10), length 10
           'lambdaRole',                       // lambdaRole, length 10
         ];
-        const role_name_length = plugin.getRoleNameLength(name_parts);
+        const roleNameLength = plugin.getRoleNameLength(nameParts);
         const expected = 49; // 12 + 3 + 14 + 10 + 10 == 49
-        assert.equal(role_name_length, expected + name_parts.length - 1);
+        assert.equal(roleNameLength, expected + nameParts.length - 1);
       });
 
       it('Should calculate the actual length for a non AWS::Region ref to maintain backward compatibility', () => {
         serverless.service.provider.region = 'ap-northeast-1';
-        const function_name = 'a'.repeat(10);
-        const name_parts = [
+        const functionName = 'a'.repeat(10);
+        const nameParts = [
           serverless.service.service,         // test-service , length of 12
           { Ref: 'bananas'},                  // bananas, length of 7
           { Ref: 'AWS::Region' },             // ap-northeast-1, length 14
-          function_name,                      // 'a'.repeat(10), length 10
+          functionName,                      // 'a'.repeat(10), length 10
           'lambdaRole',                       // lambdaRole, length 10
         ];
-        const role_name_length = plugin.getRoleNameLength(name_parts);
+        const roleNameLength = plugin.getRoleNameLength(nameParts);
         const expected = 53; // 12 + 7 + 14 + 10 + 10 == 53
-        assert.equal(role_name_length, expected + name_parts.length - 1);
+        assert.equal(roleNameLength, expected + nameParts.length - 1);
       });
     });
 
@@ -165,35 +176,56 @@ describe('plugin tests', function(this: any) {
         const name = 'test-name';
         const roleName = plugin.getFunctionRoleName(name);
         assertFunctionRoleName(name, roleName);
-        const name_parts = roleName['Fn::Join'][1];
-        assert.equal(name_parts[name_parts.length - 1], 'lambdaRole');
+        const nameParts = roleName['Fn::Join'][1];
+        assert.equal(nameParts[nameParts.length - 1], 'lambdaRole');
       });
 
       it('should throw an error on long name', () => {
-        const long_name = 'long-long-long-long-long-long-long-long-long-long-long-long-long-name';
-        assert.throws(() => {plugin.getFunctionRoleName(long_name);});
+        const longName = 'long-long-long-long-long-long-long-long-long-long-long-long-long-name';
+        assert.throws(() => {plugin.getFunctionRoleName(longName);});
         try {
-          plugin.getFunctionRoleName(long_name);
+          plugin.getFunctionRoleName(longName);
         } catch (error) {
           // some validation that the error we throw is what we expect
           const msg: string = error.message;
           assert.isString(msg);
           assert.isTrue(msg.startsWith('serverless-iam-roles-per-function: ERROR:'));
-          assert.isTrue(msg.includes(long_name));
+          assert.isTrue(msg.includes(longName));
           assert.isTrue(msg.endsWith('iamRoleStatementsName.'));
         }
+      });
+
+      it('should throw with invalid Fn:Join statement', () => {
+        assert.throws(() => {
+          const longName = 'test-name';
+          const invalidRoleName = {
+            'Fn::Join': [],
+          };
+          const slsMock = {
+            service: {
+              provider: {
+                name: 'aws',
+              },
+            },
+            providers: {
+              aws: { naming: { getRoleName: () => invalidRoleName } },
+            },
+          };
+          (new Plugin(slsMock)).getFunctionRoleName(longName);
+        });
       });
 
       it('should return a name without "lambdaRole"', () => {
         let name = 'test-name';
         let roleName = plugin.getFunctionRoleName(name);
         const len = plugin.getRoleNameLength(roleName['Fn::Join'][1]);
-        //create a name which causes role name to be longer than 64 chars by 1. Will cause then lambdaRole to be removed
+        // create a name which causes role name to be longer than 64 chars by 1.
+        // Will cause then lambdaRole to be removed
         name += 'a'.repeat(64 - len + 1);
         roleName = plugin.getFunctionRoleName(name);
         assertFunctionRoleName(name, roleName);
-        const name_parts = roleName['Fn::Join'][1];
-        assert.notEqual(name_parts[name_parts.length - 1], 'lambdaRole');
+        const nameParts = roleName['Fn::Join'][1];
+        assert.notEqual(nameParts[nameParts.length - 1], 'lambdaRole');
       });
     });
 
@@ -218,20 +250,20 @@ describe('plugin tests', function(this: any) {
         );
         const helloInheritRole = compiledResources.HelloInheritIamRoleLambdaExecution;
         assertFunctionRoleName('helloInherit', helloInheritRole.Properties.RoleName);
-        let policy_statements: any[] = helloInheritRole.Properties.Policies[0].PolicyDocument.Statement;
+        let policyStatements: any[] = helloInheritRole.Properties.Policies[0].PolicyDocument.Statement;
         assert.isObject(
-          policy_statements.find((s) => s.Action[0] === 'xray:PutTelemetryRecords'),
+          policyStatements.find((s) => s.Action[0] === 'xray:PutTelemetryRecords'),
           'global statements imported upon inherit',
         );
         assert.isObject(
-          policy_statements.find((s) => s.Action[0] === 'dynamodb:GetItem'),
+          policyStatements.find((s) => s.Action[0] === 'dynamodb:GetItem'),
           'per function statements imported upon inherit',
         );
         const streamHandlerRole = compiledResources.StreamHandlerIamRoleLambdaExecution;
         assertFunctionRoleName('streamHandler', streamHandlerRole.Properties.RoleName);
-        policy_statements = streamHandlerRole.Properties.Policies[0].PolicyDocument.Statement;
+        policyStatements = streamHandlerRole.Properties.Policies[0].PolicyDocument.Statement;
         assert.isObject(
-          policy_statements.find((s) =>
+          policyStatements.find((s) =>
             _.isEqual(s.Action, [
               'dynamodb:GetRecords',
               'dynamodb:GetShardIterator',
@@ -241,16 +273,16 @@ describe('plugin tests', function(this: any) {
               'arn:aws:dynamodb:us-east-1:1234567890:table/test/stream/2017-10-09T19:39:15.151'])),
           'stream statements included',
         );
-        assert.isObject(policy_statements.find((s) => s.Action[0] === 'sns:Publish'), 'sns dlq statements included');
+        assert.isObject(policyStatements.find((s) => s.Action[0] === 'sns:Publish'), 'sns dlq statements included');
         const streamMapping = compiledResources.StreamHandlerEventSourceMappingDynamodbTest;
         assert.equal(streamMapping.DependsOn, 'StreamHandlerIamRoleLambdaExecution');
         // verify sqsHandler should have SQS permissions
         const sqsHandlerRole = compiledResources.SqsHandlerIamRoleLambdaExecution;
         assertFunctionRoleName('sqsHandler', sqsHandlerRole.Properties.RoleName);
-        policy_statements = sqsHandlerRole.Properties.Policies[0].PolicyDocument.Statement;
-        JSON.stringify(policy_statements);
+        policyStatements = sqsHandlerRole.Properties.Policies[0].PolicyDocument.Statement;
+        JSON.stringify(policyStatements);
         assert.isObject(
-          policy_statements.find((s) =>
+          policyStatements.find((s) =>
             _.isEqual(s.Action, [
               'sqs:ReceiveMessage',
               'sqs:DeleteMessage',
@@ -260,7 +292,7 @@ describe('plugin tests', function(this: any) {
               'arn:aws:sqs:us-east-1:1234567890:MyOtherQueue'])),
           'sqs statements included',
         );
-        assert.isObject(policy_statements.find((s) => s.Action[0] === 'sns:Publish'), 'sns dlq statements included');
+        assert.isObject(policyStatements.find((s) => s.Action[0] === 'sns:Publish'), 'sns dlq statements included');
         const sqsMapping = compiledResources.SqsHandlerEventSourceMappingSQSMyQueue;
         assert.equal(sqsMapping.DependsOn, 'SqsHandlerIamRoleLambdaExecution');
         // verify helloNoPerFunction should have global role
@@ -302,7 +334,7 @@ describe('plugin tests', function(this: any) {
         for (const key in compiledResources) {
           if (key !== 'IamRoleLambdaExecution' &&  Object.prototype.hasOwnProperty.call(compiledResources, key)) {
             const resource = compiledResources[key];
-            if(resource.Type === 'AWS::IAM::Role') {
+            if (resource.Type === 'AWS::IAM::Role') {
               assert.fail(resource, undefined, 'There shouldn\'t be extra roles beyond IamRoleLambdaExecution');
             }
           }
@@ -338,9 +370,9 @@ describe('plugin tests', function(this: any) {
     let plugin: Plugin;
 
     beforeEach(() => {
-      //set defaultInherit
+      // set defaultInherit
       _.set(serverless.service, 'custom.serverless-iam-roles-per-function.defaultInherit', true);
-      //change helloInherit to false for testing
+      // change helloInherit to false for testing
       _.set(serverless.service, 'functions.helloInherit.iamRoleStatementsInherit', false);
       plugin = new Plugin(serverless);
     });
@@ -358,7 +390,7 @@ describe('plugin tests', function(this: any) {
         const helloRole = compiledResources.HelloIamRoleLambdaExecution;
         assert.isNotEmpty(helloRole);
         assertFunctionRoleName('hello', helloRole.Properties.RoleName);
-        //check depends and role is set properlly
+        // check depends and role is set properlly
         const helloFunctionResource = compiledResources.HelloLambdaFunction;
         assert.isTrue(
           helloFunctionResource.DependsOn.indexOf('HelloIamRoleLambdaExecution') >= 0,

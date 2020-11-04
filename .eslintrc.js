@@ -1,4 +1,5 @@
 // @see https://eslint.org/docs/user-guide/configuring#configuring-rules
+
 const OFF = 0;
 const WARN = 1;
 const ERROR = 2;
@@ -25,6 +26,14 @@ module.exports = {
   rules: {
     '@typescript-eslint/no-explicit-any': OFF,
     '@typescript-eslint/explicit-module-boundary-types': OFF,
+    '@typescript-eslint/no-unused-vars': [ERROR, { argsIgnorePattern: '^_' }],
+    // eslint-disable-next-line max-len
+    // https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-unused-vars.md
+    'no-unused-vars': OFF,
+    'camelcase': ERROR,
+    'space-infix-ops': ERROR,
+    'keyword-spacing': ERROR,
+    'spaced-comment': ERROR,
     'arrow-body-style': [ERROR, 'as-needed'],
     'comma-dangle': [ERROR, 'always-multiline'],
     'import/imports-first': ERROR,
@@ -36,7 +45,6 @@ module.exports = {
     'max-len': [ERROR, 120],
     'newline-per-chained-call': ERROR,
     'no-confusing-arrow': ERROR,
-    'no-unused-vars': [ERROR, { argsIgnorePattern: '^_' }],
     'no-use-before-define': ERROR,
     'require-yield': ERROR,
     'function-call-argument-newline': [ERROR, 'consistent'],
