@@ -8,6 +8,7 @@ node_js:
   - "10"
   - "12"
   - "14"
+
 env:
   - SERVERLESS_VERSION=latest COV_PUB=true
   - SERVERLESS_VERSION=latest~1

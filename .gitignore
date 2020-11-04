@@ -9,3 +9,5 @@ coverage
 .nyc_output
 npm-debug.log
 *.txt
+# JetBrains IDE
+.idea

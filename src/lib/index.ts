@@ -11,7 +11,6 @@ interface Statement {
 
 class ServerlessIamPerFunctionPlugin {
 
-  provider: string;
   hooks: {[i: string]: () => void};
   serverless: any;
   awsPackagePlugin: any;
@@ -23,8 +22,43 @@ class ServerlessIamPerFunctionPlugin {
    * @param options
    */
   constructor(serverless: any) {
-    this.provider = 'aws';
     this.serverless = serverless;
+
+    if (this.serverless.service.provider.name !== 'aws') {
+      throw new this.serverless.classes.Error('ses-template plugin supports only AWS');
+    }
+
+    // Added: Schema based validation of service config
+    // https://github.com/serverless/serverless/releases/tag/v1.78.0
+    if (this.serverless.configSchemaHandler) {
+      const newCustomPropSchema = {
+        type: 'object',
+        properties: {
+          [PLUGIN_NAME]: {
+            type: 'object',
+            properties: {
+              defaultInherit: {
+                type: 'boolean',
+              },
+            },
+            additionalProperties: false,
+          },
+        },
+      };
+      serverless.configSchemaHandler.defineCustomProperties(newCustomPropSchema);
+
+      // Added: defineFunctionProperties schema extension method
+      // https://github.com/serverless/serverless/releases/tag/v2.10.0
+      if (this.serverless.configSchemaHandler.defineFunctionProperties) {
+        this.serverless.configSchemaHandler.defineFunctionProperties('providerName', {
+          properties: {
+            iamRoleStatementsName: { type: 'string' },
+            iamRoleStatements: { $ref: '#/definitions/awsIamPolicyStatements' },
+          },
+        });
+      }
+    }
+
     this.hooks = {
       'before:package:finalize': this.createRolesPerFunction.bind(this),
     };
@@ -43,42 +77,42 @@ class ServerlessIamPerFunctionPlugin {
     throw new this.serverless.classes.Error(err_msg);
   }
 
-  validateStatements(statements: any): void {	
-    // Verify that iamRoleStatements (if present) is an array of { Effect: ...,	
-    // Action: ..., Resource: ... } objects.	
+  validateStatements(statements: any): void {
+    // Verify that iamRoleStatements (if present) is an array of { Effect: ...,
+    // Action: ..., Resource: ... } objects.
     if(_.isEmpty(statements)) {
       return;
     }
-    let violationsFound;	
-    if (!Array.isArray(statements)) {	
-      violationsFound = 'it is not an array';	
-    } else {	
-      const descriptions = statements.map((statement, i) => {	
-        const missing = [	
-          ['Effect'],	
-          ['Action', 'NotAction'],	
-          ['Resource', 'NotResource'],	
-        ].filter(props => props.every(prop => !statement[prop]));	
-        return missing.length === 0	
-          ? null	
-          : `statement ${i} is missing the following properties: ${missing	
-              .map(m => m.join(' / '))	
-              .join(', ')}`;	
-      });	
-      const flawed = descriptions.filter(curr => curr);	
-      if (flawed.length) {	
-        violationsFound = flawed.join('; ');	
-      }	
-    }	
+    let violationsFound;
+    if (!Array.isArray(statements)) {
+      violationsFound = 'it is not an array';
+    } else {
+      const descriptions = statements.map((statement, i) => {
+        const missing = [
+          ['Effect'],
+          ['Action', 'NotAction'],
+          ['Resource', 'NotResource'],
+        ].filter((props) => props.every((prop) => !statement[prop]));
+        return missing.length === 0
+          ? null
+          : `statement ${i} is missing the following properties: ${missing
+              .map((m) => m.join(' / '))
+              .join(', ')}`;
+      });
+      const flawed = descriptions.filter((curr) => curr);
+      if (flawed.length) {
+        violationsFound = flawed.join('; ');
+      }
+    }
 
-    if (violationsFound) {	
-      const errorMessage = [	
-        'iamRoleStatements should be an array of objects,',	
-        ' where each object has Effect, Action / NotAction, Resource / NotResource fields.',	
-        ` Specifically, ${violationsFound}`,	
-      ].join('');	
-      this.throwError(errorMessage);	
-    }	
+    if (violationsFound) {
+      const errorMessage = [
+        'iamRoleStatements should be an array of objects,',
+        ' where each object has Effect, Action / NotAction, Resource / NotResource fields.',
+        ` Specifically, ${violationsFound}`,
+      ].join('');
+      this.throwError(errorMessage);
+    }
   }
 
   getRoleNameLength(name_parts: any[]) {
@@ -225,7 +259,7 @@ class ServerlessIamPerFunctionPlugin {
       return;
     }
     if(functionObject.role) {
-      this.throwError("Defing function with both 'role' and 'iamRoleStatements' is not supported. Function name: " + functionName);
+      this.throwError("Define function with both 'role' and 'iamRoleStatements' is not supported. Function name: " + functionName);
     }
     this.validateStatements(functionObject.iamRoleStatements);
     //we use the configured role as a template
