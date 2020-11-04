@@ -19,7 +19,10 @@ before_install:
 
 install:
   - travis_retry npm install
-  - npm install --no-save --ignore-scripts `npx npm-get-version serverless@$SERVERLESS_VERSION`
+  - travis_retry npm install --no-save --ignore-scripts `npx npm-get-version serverless@$SERVERLESS_VERSION`
+
+script:
   - npm run lint
+  - npm test
 
 after_success: test -z "$COV_PUB" || npm run coverage
