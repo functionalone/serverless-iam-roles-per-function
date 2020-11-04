@@ -4,7 +4,7 @@ import util from 'util';
 const PLUGIN_NAME = 'serverless-iam-roles-per-function';
 
 interface Statement {
-  Effect: "Allow" | "Deny";
+  Effect: 'Allow' | 'Deny';
   Action: string | string[];
   Resource: string | any[];
 }
@@ -18,8 +18,8 @@ class ServerlessIamPerFunctionPlugin {
 
   /**
    *
-   * @param serverless - serverless host object
-   * @param options
+   * @param {Serverless} serverless - serverless host object
+   * @param {Object} _options
    */
   constructor(serverless: any) {
     this.serverless = serverless;
@@ -68,6 +68,9 @@ class ServerlessIamPerFunctionPlugin {
   /**
    * Utility function which throws an error. The msg will be formated with args using util.format.
    * Error message will be prefixed with ${PLUGIN_NAME}: ERROR:
+   * @param {string} msg
+   * @param {*[]} args
+   * @returns void
    */
   throwError(msg: string, ...args: any[]) {
     if(!_.isEmpty(args)) {
@@ -77,6 +80,10 @@ class ServerlessIamPerFunctionPlugin {
     throw new this.serverless.classes.Error(err_msg);
   }
 
+  /**
+   * @param {*} statements
+   * @returns void
+   */
   validateStatements(statements: any): void {
     // Verify that iamRoleStatements (if present) is an array of { Effect: ...,
     // Action: ..., Resource: ... } objects.
@@ -95,9 +102,7 @@ class ServerlessIamPerFunctionPlugin {
         ].filter((props) => props.every((prop) => !statement[prop]));
         return missing.length === 0
           ? null
-          : `statement ${i} is missing the following properties: ${missing
-              .map((m) => m.join(' / '))
-              .join(', ')}`;
+          : `statement ${i} is missing the following properties: ${missing.map((m) => m.join(' / ')).join(', ')}`;
       });
       const flawed = descriptions.filter((curr) => curr);
       if (flawed.length) {
@@ -115,6 +120,10 @@ class ServerlessIamPerFunctionPlugin {
     }
   }
 
+  /**
+   * @param {*[]} name_parts
+   * @returns void
+   */
   getRoleNameLength(name_parts: any[]) {
     let length=0; //calculate the expected length. Sum the length of each part
     for (const part of name_parts) {
@@ -132,11 +141,15 @@ class ServerlessIamPerFunctionPlugin {
     return length;
   }
 
+  /**
+   * @param {string} functionName
+   * @returns {string}
+   */
   getFunctionRoleName(functionName: string) {
     const roleName = this.serverless.providers.aws.naming.getRoleName();
     const fnJoin = roleName['Fn::Join'];
     if(!_.isArray(fnJoin) || fnJoin.length !== 2 || !_.isArray(fnJoin[1]) || fnJoin[1].length < 2) {
-      this.throwError("Global Role Name is not in exepcted format. Got name: " + JSON.stringify(roleName));
+      this.throwError('Global Role Name is not in exepcted format. Got name: ' + JSON.stringify(roleName));
     }
     fnJoin[1].splice(2, 0, functionName); //insert the function name
     if(this.getRoleNameLength(fnJoin[1]) > 64 && fnJoin[1][fnJoin[1].length-1] === 'lambdaRole') {
@@ -151,27 +164,34 @@ class ServerlessIamPerFunctionPlugin {
   }
 
   /**
-   *
-   * @param functionName
-   * @param roleName
-   * @param globalRoleName
+   * @param {string} functionName
+   * @param {string} roleName
+   * @param {string} globalRoleName
    * @return the function resource name
    */
   updateFunctionResourceRole(functionName: string, roleName: string, globalRoleName: string): string {
     const functionResourceName = this.serverless.providers.aws.naming.getLambdaLogicalId(functionName);
-    const functionResource = this.serverless.service.provider.compiledCloudFormationTemplate.Resources[functionResourceName];
-    if(_.isEmpty(functionResource) || _.isEmpty(functionResource.Properties) || _.isEmpty(functionResource.Properties.Role) ||
-      !_.isArray(functionResource.Properties.Role["Fn::GetAtt"]) || !_.isArray(functionResource.DependsOn)) {
-        this.throwError("Function Resource is not in exepcted format. For function name: " + functionName);
+    const functionResource = this.serverless.service.provider
+      .compiledCloudFormationTemplate.Resources[functionResourceName];
+
+    if(_.isEmpty(functionResource)
+      || _.isEmpty(functionResource.Properties)
+      || _.isEmpty(functionResource.Properties.Role)
+      || !_.isArray(functionResource.Properties.Role['Fn::GetAtt'])
+      || !_.isArray(functionResource.DependsOn)
+    ) {
+      this.throwError('Function Resource is not in expected format. For function name: ' + functionName);
     }
-    functionResource.DependsOn = [roleName].concat(functionResource.DependsOn.filter(((val: any) => val !== globalRoleName )));
-    functionResource.Properties.Role["Fn::GetAtt"][0] = roleName;
+    functionResource.DependsOn = [roleName].concat(
+      functionResource.DependsOn.filter(((val: any) => val !== globalRoleName )),
+    );
+    functionResource.Properties.Role['Fn::GetAtt'][0] = roleName;
     return functionResourceName;
   }
 
   /**
    * Get the necessary statement permissions if there are SQS event sources.
-   * @param functionObject
+   * @param {*} functionObject
    * @return statement (possibly null)
    */
   getSqsStatement(functionObject: any) {
@@ -195,7 +215,7 @@ class ServerlessIamPerFunctionPlugin {
 
   /**
    * Get the necessary statement permissions if there are stream event sources of dynamo or kinesis.
-   * @param functionObject
+   * @param {*} functionObject
    * @return array of statements (possibly empty)
    */
   getStreamStatements(functionObject: any) {
@@ -249,9 +269,11 @@ class ServerlessIamPerFunctionPlugin {
   }
 
   /**
-   * Will check if function has a definition of iamRoleStatements. If so will create a new Role for the function based on these statements.
-   * @param functionName
-   * @param functionToRoleMap - populate the map with a mapping from function resource name to role resource name
+   * Will check if function has a definition of iamRoleStatements.
+   * If so will create a new Role for the function based on these statements.
+   * @param {string} functionName
+   * @param {Map} functionToRoleMap - populate the map with a mapping from function resource name to role resource name
+   * @returns void
    */
   createRoleForFunction(functionName: string, functionToRoleMap: Map<string, string>) {
     const functionObject = this.serverless.service.getFunction(functionName);
@@ -259,7 +281,10 @@ class ServerlessIamPerFunctionPlugin {
       return;
     }
     if(functionObject.role) {
-      this.throwError("Define function with both 'role' and 'iamRoleStatements' is not supported. Function name: " + functionName);
+      this.throwError(
+        'Define function with both \'role\' and \'iamRoleStatements\' is not supported. Function name: '
+        + functionName,
+      );
     }
     this.validateStatements(functionObject.iamRoleStatements);
     //we use the configured role as a template
@@ -271,8 +296,8 @@ class ServerlessIamPerFunctionPlugin {
     functionIamRole.Properties.Policies[0].PolicyDocument.Statement = policyStatements;
     //set log statements
     policyStatements[0] = {
-      Effect: "Allow",
-      Action: ["logs:CreateLogStream", "logs:PutLogEvents"],
+      Effect: 'Allow',
+      Action: ['logs:CreateLogStream', 'logs:PutLogEvents'],
       Resource: [
         {
           'Fn::Sub': 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}' +
@@ -312,8 +337,11 @@ class ServerlessIamPerFunctionPlugin {
         Resource: functionObject.onError,
       });
     }
-    if((functionObject.iamRoleStatementsInherit || (this.defaultInherit && functionObject.iamRoleStatementsInherit !== false))
-      && !_.isEmpty(this.serverless.service.provider.iamRoleStatements)) { //add global statements
+
+    const isInherit = functionObject.iamRoleStatementsInherit
+      || (this.defaultInherit && functionObject.iamRoleStatementsInherit !== false);
+
+    if(isInherit && !_.isEmpty(this.serverless.service.provider.iamRoleStatements)) { //add global statements
       for (const s of this.serverless.service.provider.iamRoleStatements) {
         policyStatements.push(s);
       }
@@ -324,21 +352,25 @@ class ServerlessIamPerFunctionPlugin {
         policyStatements.push(s);
       }
     }
-    functionIamRole.Properties.RoleName = functionObject.iamRoleStatementsName || this.getFunctionRoleName(functionName);
-    const roleResourceName = this.serverless.providers.aws.naming.getNormalizedFunctionName(functionName) + globalRoleName;
+    functionIamRole.Properties.RoleName = functionObject.iamRoleStatementsName
+      || this.getFunctionRoleName(functionName);
+    const roleResourceName = this.serverless.providers.aws.naming.getNormalizedFunctionName(functionName)
+      + globalRoleName;
     this.serverless.service.provider.compiledCloudFormationTemplate.Resources[roleResourceName] = functionIamRole;
     const functionResourceName = this.updateFunctionResourceRole(functionName, roleResourceName, globalRoleName);
     functionToRoleMap.set(functionResourceName, roleResourceName);
   }
 
   /**
-   * Go over each EventSourceMapping and if it is for a function with a function level iam role then adjust the DependsOn
-   * @param functionToRoleMap
+   * Go over each EventSourceMapping and if it is for a function with a function level iam role
+   * then adjust the DependsOn
+   * @param {Map} functionToRoleMap
+   * @returns void
    */
   setEventSourceMappings(functionToRoleMap: Map<string, string>) {
     for (const mapping of _.values(this.serverless.service.provider.compiledCloudFormationTemplate.Resources)) {
       if(mapping.Type && mapping.Type === 'AWS::Lambda::EventSourceMapping') {
-        const functionNameFn = _.get(mapping, "Properties.FunctionName.Fn::GetAtt");
+        const functionNameFn = _.get(mapping, 'Properties.FunctionName.Fn::GetAtt');
         if(!_.isArray(functionNameFn)) {
           continue;
         }
@@ -351,6 +383,9 @@ class ServerlessIamPerFunctionPlugin {
     }
   }
 
+  /**
+   * @returns void
+   */
   createRolesPerFunction() {
     const allFunctions = this.serverless.service.getAllFunctions();
     if(_.isEmpty(allFunctions)) {
