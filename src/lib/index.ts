@@ -25,7 +25,7 @@ class ServerlessIamPerFunctionPlugin {
     this.serverless = serverless;
 
     if (this.serverless.service.provider.name !== 'aws') {
-      throw new this.serverless.classes.Error('ses-template plugin supports only AWS');
+      throw new this.serverless.classes.Error(`${PLUGIN_NAME} plugin supports only AWS`);
     }
 
     // Added: Schema based validation of service config
