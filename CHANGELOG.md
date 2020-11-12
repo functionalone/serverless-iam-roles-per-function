@@ -4,14 +4,27 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## After Forking
 
-### [2.1.0](https://github.com/CoorpAcademy/serverless-granular-iam//compare/v2.0.2...v2.1.0) (2020-06-08)
-Support for managed policies release, [coorp #1](https://github.com/CoorpAcademy/serverless-granular-iam/pull/2)
+### [3.0.1](https://github.com/CoorpAcademy/serverless-granular-iam//compare/v2.0.2...v2.1.0) (2020-06-08)
+Support for managed policies release, ([#60](https://github.com/functionalone/serverless-iam-roles-per-function/pull/60))
 - Contains reworked https://github.com/functionalone/serverless-iam-roles-per-function/pull/19
 - Some extras (tests, duplication safeguard, prepare for git install)
 
-## Before forking
-### [2.0.2](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v2.0.1...v2.0.2) (2019-08-30) (fork release on 2020-06-03)
-(first fork release, after [coorp #1](https://github.com/CoorpAcademy/serverless-granular-iam/pull/2))
+
+## [3.0.0](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v2.0.2...v3.0.0) (2020-11-02)
+
+
+### Features
+
+* Support for Serverless v2.5.0 ([#53](https://github.com/functionalone/serverless-iam-roles-per-function/issues/53)) ([09e56ae](https://github.com/functionalone/serverless-iam-roles-per-function/commit/09e56ae))
+
+
+### Features
+
+* nodejs 12 support ([#32](https://github.com/functionalone/serverless-iam-roles-per-function/issues/32)) ([4dd58a2](https://github.com/functionalone/serverless-iam-roles-per-function/commit/4dd58a2))
+* Use resolved region name in counting length of role name ([#33](https://github.com/functionalone/serverless-iam-roles-per-function/issues/33)) ([f9fd677](https://github.com/functionalone/serverless-iam-roles-per-function/commit/f9fd677)), closes [#26](https://github.com/functionalone/serverless-iam-roles-per-function/issues/26)
+
+### [2.0.2](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v2.0.1...v2.0.2) (2019-08-30)
+
 
 ### Features
 

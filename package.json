@@ -1,11 +1,11 @@
 {
   "name": "serverless-granular-iam",
   "private": false,
-  "version": "2.1.0",
+  "version": "3.0.1",
   "engines": {
-    "node": ">=6.10.0"
+    "node": ">=10"
   },
-  "description": "A Serverless plugin to define IAM Role statements as part of the function definition block [serverless-iam-roles-per-function temporary fork]",
+  "description": "A Serverless plugin to define IAM Role statements as part of the function definition block",
   "main": "dist/lib/index.js",
   "scripts": {
     "clean": "rimraf dist",
@@ -14,17 +14,14 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "compile": "tsc",
     "watch": "tsc -w",
-    "prepare": "npm run clean && npm run compile",
+    "prepublishOnly": "npm run clean && npm run compile",
     "release": "standard-version"
   },
   "author": "Functional One, Ltd.",
-  "maintainers": [
-    "Adrien Becchis <adrien.becchis@coorpacademy.com> (https://github.com/AdrieanKhisbe/)"
-  ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/CoorpAcademy/serverless-granular-iam"
+    "url": "https://github.com/functionalone/serverless-iam-roles-per-function"
   },
   "keywords": [
     "aws",
@@ -55,10 +52,10 @@
     "rimraf": "^3.0.0",
     "serverless": "^1.51.0",
     "source-map-support": "^0.5.13",
-    "standard-version": "^7.0.0",
+    "standard-version": "^8.0.1",
     "ts-node": "^8.3.0",
     "tslint": "^5.19.0",
-    "typescript": "^3.7.5"
+    "typescript": "^3.6.2"
   },
   "files": [
     "dist/index.*",
@@ -82,5 +79,10 @@
       "text"
     ],
     "all": true
+  },
+  "standard-version": {
+    "skip": {
+      "tag": true
+    }
   }
 }

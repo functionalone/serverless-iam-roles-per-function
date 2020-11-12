@@ -17,6 +17,11 @@ This is meant to be temporary until _iamManagedPolicies_ are supported with [#19
 npm install --save-dev serverless-granular-iam
 ```
 
+Or if you want to try out the `next` upcoming version:
+```
+npm install --save-dev serverless-iam-roles-per-function@next
+```
+
 Add the plugin to serverless.yml:
 
 ```yaml

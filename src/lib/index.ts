@@ -45,23 +45,42 @@ class ServerlessIamPerFunctionPlugin {
     throw new this.serverless.classes.Error(err_msg);
   }
 
-  validateStatements(statements: any): void {
+  validateStatements(statements: any): void {	
+    // Verify that iamRoleStatements (if present) is an array of { Effect: ...,	
+    // Action: ..., Resource: ... } objects.	
     if(_.isEmpty(statements)) {
       return;
     }
-    const awsPackagePluginName = "AwsPackage";
-    if(!this.awsPackagePlugin) {
-      for (const plugin of this.serverless.pluginManager.plugins) {
-        if(plugin.constructor && plugin.constructor.name === awsPackagePluginName) {
-          this.awsPackagePlugin = plugin;
-          break;
-        }
-      }
-    }
-    if(!this.awsPackagePlugin) {
-      this.throwError(`ERROR: could not find ${awsPackagePluginName} plugin to verify statements.`);
-    }
-    this.awsPackagePlugin.validateStatements(statements);
+    let violationsFound;	
+    if (!Array.isArray(statements)) {	
+      violationsFound = 'it is not an array';	
+    } else {	
+      const descriptions = statements.map((statement, i) => {	
+        const missing = [	
+          ['Effect'],	
+          ['Action', 'NotAction'],	
+          ['Resource', 'NotResource'],	
+        ].filter(props => props.every(prop => !statement[prop]));	
+        return missing.length === 0	
+          ? null	
+          : `statement ${i} is missing the following properties: ${missing	
+              .map(m => m.join(' / '))	
+              .join(', ')}`;	
+      });	
+      const flawed = descriptions.filter(curr => curr);	
+      if (flawed.length) {	
+        violationsFound = flawed.join('; ');	
+      }	
+    }	
+
+    if (violationsFound) {	
+      const errorMessage = [	
+        'iamRoleStatements should be an array of objects,',	
+        ' where each object has Effect, Action / NotAction, Resource / NotResource fields.',	
+        ` Specifically, ${violationsFound}`,	
+      ].join('');	
+      this.throwError(errorMessage);	
+    }	
   }
 
   getRoleNameLength(name_parts: any[]) {
