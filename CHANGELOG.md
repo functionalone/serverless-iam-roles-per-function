@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## After Forking
+
+### [3.0.1](https://github.com/CoorpAcademy/serverless-granular-iam//compare/v2.0.2...v2.1.0) (2020-06-08)
+Support for managed policies release, ([#60](https://github.com/functionalone/serverless-iam-roles-per-function/pull/60))
+- Contains reworked https://github.com/functionalone/serverless-iam-roles-per-function/pull/19
+- Some extras (tests, duplication safeguard, prepare for git install)
+
+
 ## [3.0.0](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v2.0.2...v3.0.0) (2020-11-02)
 
 

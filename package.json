@@ -1,7 +1,7 @@
 {
-  "name": "serverless-iam-roles-per-function",
+  "name": "serverless-granular-iam",
   "private": false,
-  "version": "3.0.0",
+  "version": "3.0.1",
   "engines": {
     "node": ">=10"
   },
@@ -55,7 +55,7 @@
     "standard-version": "^8.0.1",
     "ts-node": "^8.3.0",
     "tslint": "^5.19.0",
-    "typescript": "^3.6.2"
+    "typescript": "^3.7.5"
   },
   "files": [
     "dist/index.*",

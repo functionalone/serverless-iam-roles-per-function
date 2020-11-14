@@ -5,6 +5,9 @@
     "region": "us-east-1",
     "name": "aws",
     "runtime": "python2.7",
+    "iamManagedPolicies": [
+      "arn:aws:iam::aws:policy/AmazonRDSFullAccess"
+    ],
     "iamRoleStatements": [
       {
         "Effect": "Allow",
@@ -44,7 +47,7 @@
           "Resource": "arn:aws:dynamodb:us-east-1:*:table/test"
         }
       ],
-      "iamRoleStatementsInherit": true,
+      "iamManagedPoliciesInherit": true,
       "events": [],
       "name": "test-python-dev-hello",
       "package": {},
@@ -52,6 +55,9 @@
     },
     "streamHandler": {
       "handler": "handler.stream",
+      "iamManagedPolicies": [
+        "arn:aws:iam::aws:policy/AmazonKinesisFullAccess"
+      ],
       "iamRoleStatements": [
         {
           "Effect": "Allow",
@@ -71,6 +77,10 @@
     },
     "sqsHandler": {
       "handler": "handler.sqs",
+      "iamManagedPoliciesInherit": true,
+      "iamManagedPolicies": [
+        "arn:aws:iam::aws:policy/AmazonKinesisFullAccess"
+      ],
       "iamRoleStatements": [
         {
           "Effect": "Allow",
@@ -96,8 +106,9 @@
       "package": {},
       "vpc": {}
     },
-    "helloEmptyIamStatements": {
+    "helloEmptyIamPolicies": {
       "handler": "handler.hello",
+      "iamManagedPolicies": [],
       "iamRoleStatements": [],
       "events": [],
       "name": "test-python-dev-hello",
@@ -106,6 +117,32 @@
         "securityGroupIds": ["sg-xxxxxx"],
         "subnetIds": ["subnet-xxxx", "subnet-yyyy"]
       }
+    },
+    "helloNoDuplicateVpcIamPolicies": {
+      "handler": "handler.hello",
+      "iamManagedPolicies": [
+        "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+      ],
+      "iamRoleStatements": [],
+      "events": [],
+      "name": "test-python-dev-hello",
+      "package": {},
+      "vpc": {
+        "securityGroupIds": ["sg-xxxxxx"],
+        "subnetIds": ["subnet-xxxx", "subnet-yyyy"]
+      }
+    },
+    "helloDuplicateIamPolicies": {
+      "handler": "handler.hello",
+      "iamManagedPoliciesInherit": true,
+      "iamManagedPolicies": [
+        "arn:aws:iam::aws:policy/AmazonRDSFullAccess",
+        "arn:aws:iam::aws:policy/AmazonKinesisFullAccess"
+      ],
+      "iamRoleStatements": [],
+      "events": [],
+      "name": "test-python-dev-hello",
+      "package": {}
     }
   },
   "resources": {
