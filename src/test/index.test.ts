@@ -25,7 +25,7 @@ const loadServerlessConfig = (serverlessConfigAsJson: any, tempdir: string) => (
 };
 
 const getServerlessInstance = async (serverlessConfigAsJson: any, tempdir: string) => {
-  serverless = new Serverless();
+  const serverless = new Serverless();
   serverless.cli = new serverless.classes.CLI();
   serverless.processedInput = serverless.cli.processInput();
   Object.assign(serverless.service, _.cloneDeep(serverlessConfigAsJson));
@@ -47,6 +47,8 @@ const getServerlessInstance = async (serverlessConfigAsJson: any, tempdir: strin
       assert.fail();
     }
   }
+
+  return serverless;
 };
 
 describe('plugin tests', function(this: any) {
@@ -120,7 +122,7 @@ describe('plugin tests', function(this: any) {
           serverless.service.provider.stage,  // dev, length of 3 : 15
           { Ref: 'AWS::Region' },             // us-east-1, length 9 : 24
           function_name,                      // 'a'.repeat(10), length 10 : 34
-          'lambdaRole'                        // lambdaRole, length 10 : 44
+          'lambdaRole',                       // lambdaRole, length 10 : 44
         ];
         const role_name_length = plugin.getRoleNameLength(name_parts);
         const expected = 44; // 12 + 3 + 9 + 10 + 10 == 44
@@ -135,7 +137,7 @@ describe('plugin tests', function(this: any) {
           serverless.service.provider.stage,  // dev, length of 3
           { Ref: 'AWS::Region' },             // ap-northeast-1, length 14
           function_name,                      // 'a'.repeat(10), length 10
-          'lambdaRole'                        // lambdaRole, length 10
+          'lambdaRole',                       // lambdaRole, length 10
         ];
         const role_name_length = plugin.getRoleNameLength(name_parts);
         const expected = 49; // 12 + 3 + 14 + 10 + 10 == 49
@@ -150,7 +152,7 @@ describe('plugin tests', function(this: any) {
           { Ref: 'bananas' },                  // bananas, length of 7
           { Ref: 'AWS::Region' },             // ap-northeast-1, length 14
           function_name,                      // 'a'.repeat(10), length 10
-          'lambdaRole'                        // lambdaRole, length 10
+          'lambdaRole',                       // lambdaRole, length 10
         ];
         const role_name_length = plugin.getRoleNameLength(name_parts);
         const expected = 53; // 12 + 7 + 14 + 10 + 10 == 53
@@ -223,7 +225,7 @@ describe('plugin tests', function(this: any) {
               "dynamodb:ListStreams"]) &&
             _.isEqual(s.Resource, [
               "arn:aws:dynamodb:us-east-1:1234567890:table/test/stream/2017-10-09T19:39:15.151"])),
-          'stream statements included'
+          'stream statements included',
         );
         assert.isObject(policy_statements.find((s) => s.Action[0] === "sns:Publish"), 'sns dlq statements included');
         const streamMapping = serverless.service.provider.compiledCloudFormationTemplate.Resources.StreamHandlerEventSourceMappingDynamodbTest;
@@ -242,14 +244,15 @@ describe('plugin tests', function(this: any) {
             _.isEqual(s.Resource, [
               "arn:aws:sqs:us-east-1:1234567890:MyQueue",
               "arn:aws:sqs:us-east-1:1234567890:MyOtherQueue"])),
-          'sqs statements included'
+          'sqs statements included',
         );
         assert.isObject(policy_statements.find((s) => s.Action[0] === "sns:Publish"), 'sns dlq statements included');
         const sqsMapping = serverless.service.provider.compiledCloudFormationTemplate.Resources.SqsHandlerEventSourceMappingSQSMyQueue;
         assert.equal(sqsMapping.DependsOn, "SqsHandlerIamRoleLambdaExecution");
         //verify helloNoPerFunction should have global role
         const helloNoPerFunctionResource = serverless.service.provider.compiledCloudFormationTemplate.Resources.HelloNoPerFunctionLambdaFunction;
-        //no DependsOn is added when using global role: https://github.com/serverless/serverless/blob/9303d8ecd46059121082c3308e5fe5385e0be38e/lib/plugins/aws/package/compile/functions/index.js#L42
+        //no DependsOn is added when using global role:
+        // https://github.com/serverless/serverless/blob/9303d8ecd46059121082c3308e5fe5385e0be38e/lib/plugins/aws/package/compile/functions/index.js#L42
         assert.isFalse(helloNoPerFunctionResource.DependsOn.indexOf('IamRoleLambdaExecution') >= 0, 'function resource depends on global role');
         assert.equal(helloNoPerFunctionResource.Properties.Role["Fn::GetAtt"][0], 'IamRoleLambdaExecution', "function resource role is set to global role");
         //verify helloEmptyIamStatements
