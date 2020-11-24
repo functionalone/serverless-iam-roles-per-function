@@ -8,6 +8,7 @@ node_js:
   - "10"
   - "12"
   - "14"
+
 env:
   - SERVERLESS_VERSION=latest COV_PUB=true
   - SERVERLESS_VERSION=latest~1
@@ -18,6 +19,10 @@ before_install:
 
 install:
   - travis_retry npm install
-  - npm install --no-save --ignore-scripts `npx npm-get-version serverless@$SERVERLESS_VERSION`
+  - travis_retry npm install --no-save --ignore-scripts `npx npm-get-version serverless@$SERVERLESS_VERSION`
+
+script:
+  - npm run lint
+  - npm test
 
 after_success: test -z "$COV_PUB" || npm run coverage
