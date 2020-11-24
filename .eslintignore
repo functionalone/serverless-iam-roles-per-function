@@ -11,3 +11,5 @@ npm-debug.log
 *.txt
 # JetBrains IDE
 .idea
+# serverless
+.serverless
