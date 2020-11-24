@@ -10,7 +10,7 @@ node_js:
   - "14"
 
 env:
-  - SERVERLESS_VERSION=latest COV_PUB=true
+  - SERVERLESS_VERSION=latest COV_PUB=true DEPLOY_NEXT=true
   - SERVERLESS_VERSION=latest~1
   - SERVERLESS_VERSION=latest~2
 
@@ -26,3 +26,17 @@ script:
   - npm test
 
 after_success: test -z "$COV_PUB" || npm run coverage
+
+before_deploy:
+  - ./pre-release-version.sh
+  - "npm run prepublishOnly"
+
+deploy:
+  provider: npm
+  email: "YOUR_EMAIL_ADDRESS"
+  api_key: "YOUR_AUTH_TOKEN"
+  tag: next
+  skip_cleanup: true
+  on:
+    branch: master
+    condition: DEPLOY_NEXT = true

@@ -84,6 +84,9 @@
     ],
     "all": true
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "standard-version": {
     "skip": {
       "tag": true
