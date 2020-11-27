@@ -10,7 +10,7 @@ node_js:
   - "14"
 
 env:
-  - SERVERLESS_VERSION=latest COV_PUB=true
+  - SERVERLESS_VERSION=latest COV_PUB=true DEPLOY=true
   - SERVERLESS_VERSION=latest~1
   - SERVERLESS_VERSION=latest~2
 
@@ -26,3 +26,19 @@ script:
   - npm test
 
 after_success: test -z "$COV_PUB" || npm run coverage
+
+before_deploy:
+  - ./pre-release-version.sh
+  - "npm run prepublishOnly"
+
+# automatic pre-release when merging to master
+deploy:
+  provider: npm
+  api_key:
+    secure: "C9YWfhRbR94hNRg7b6GkteP9Jo9yIFdHQDwm/uvSPKDIwX4kZimBRFiNXdcw0POtkLje41e2osQeCXc3YLOFKpAetCJs69nvakEQ5Lb1InWWGt4L7h1qnkPQgeJJnvy8GLIkyqQXHG01HbO8isjQoWsmZIFmhESMEyWqKrQ1qxE3swwrU6MLw/+V/mqLAigKze8OzeMe53V6yOUVqPUo8exO9wL9wxC22S0yeCboe/0LUWWpxQNJ1sb4ahsyT3gz3G7Hdzo/r4Zbd+krJnQKDp959U9HV/TMSFsjKoMWg3QwGCDhikeeCrbWpdH/YGmXrOD3wE1IJ+TiLe3TnKVa86rtCdME2a6yKn/1M3nI7Xw0aRaCTn5qLYgRciC5RIHZ933kNbEK0EhHLT9t/CpZlD60r+DWxtbJLFERVQgIObx83IkaXkWnB3+tt5jYH7SeIEVMDPhHtXz5/9kkiSMFgOvdi6CVNB2rDCKqz/L7TgOOrT80AQhCIjzFcHrm0Q0Ijje8T/is0Ck7H67wMlMOWa4L96Dtkddgr+TFw9d6SdnawLAeYrpmWjg1A1qgCHPQGKwfPgO19Gy8n8RvgL/DpimSMFoF4mmx338a58ueUKIzgQ2ZhGbg0VhhF2pOqMpcNKYWjFh0TYd3GYt3N96EUUWuwy6mOi9RpKQ5W21zqjo="
+  tag: next
+  skip_cleanup: true
+  on:
+    branch: master
+    node: 14
+    condition: '"$DEPLOY" = true'
