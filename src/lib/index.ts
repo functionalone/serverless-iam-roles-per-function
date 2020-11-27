@@ -16,6 +16,8 @@ class ServerlessIamPerFunctionPlugin {
   awsPackagePlugin: any;
   defaultInherit: boolean;
 
+  readonly PROVIDER_AWS = 'aws';
+
   /**
    *
    * @param {Serverless} serverless - serverless host object
@@ -24,7 +26,7 @@ class ServerlessIamPerFunctionPlugin {
   constructor(serverless: any, _options?: any) {
     this.serverless = serverless;
 
-    if (this.serverless.service.provider.name !== 'aws') {
+    if (this.serverless.service.provider.name !== this.PROVIDER_AWS) {
       throw new this.serverless.classes.Error(`${PLUGIN_NAME} plugin supports only AWS`);
     }
 
@@ -50,8 +52,9 @@ class ServerlessIamPerFunctionPlugin {
       // Added: defineFunctionProperties schema extension method
       // https://github.com/serverless/serverless/releases/tag/v2.10.0
       if (this.serverless.configSchemaHandler.defineFunctionProperties) {
-        this.serverless.configSchemaHandler.defineFunctionProperties('providerName', {
+        this.serverless.configSchemaHandler.defineFunctionProperties(this.PROVIDER_AWS, {
           properties: {
+            iamRoleStatementsInherit: { type: 'boolean' },
             iamRoleStatementsName: { type: 'string' },
             iamRoleStatements: { $ref: '#/definitions/awsIamPolicyStatements' },
           },
