@@ -22,6 +22,7 @@ if npx git-semver-tags | grep "$PKG_VER"; then
     exit 0
 fi
 
+chmod 600 github_deploy_key
 git config --local user.email "builds@travis-ci.com"
 git config --local user.name "Travis CI"
 git tag "$PKG_VER"
