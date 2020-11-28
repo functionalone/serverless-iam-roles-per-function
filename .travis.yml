@@ -31,20 +31,34 @@ before_deploy:
   - ./pre-release-version.sh
   - "npm run prepublishOnly"
 
-# automatic pre-release when merging to master
 deploy:
-  provider: npm
-  email:
-    secure: "5AV2rx/waiIz0z+CDGWEgUkhNkjBpL+cp5FlSFtrvAaL/LsmaZAgZNlTbxuoUD5Td7jL2TLKk3X9f3CrVBmxuUSHglGBFOOpxKVaOI6u2r20+QRpMt0ETh6csqj0ALK+ePfuf70ER4jg81MxTPlc59V6hnHAdUUsRiVPuNASQlj8pByiSpMcjqW6KWVPk1GIUrKzlKUJfBnWRduFV3yk1I2Qm215myrlRQTa5naAUn+2v289nRhWP6qnG3hmkAVfRhsq+ucu6gbEznEASlyTlZ08TH/2BIldH8956DfNmRUkELHizNLbjwoftnY+alW2XRZFGy+KYMLG6X4llxCoWksNqO6fF+qxZPVeitm68TWWFGIKOM0bAelLn1Unb9VKvyuNfrEi/XtVkYMy9SiaUh3fT3P4PGl1kUg7/iZpJWCKIMDWcqiY1UWIjAAIqH5MaVi2UlrTS+l/2bzLfFsQU0GQBxPMowEjAouZdr9nx9bpCoepO7gUSbglnYQ1h3Z/WbnaGRCWhgBziTbKspUh8YyhGAKrVoA/k1G5IPZ0aqXElggLH4tp49M+5imGMJnJPkkQojltbXzr6D2EJIw11/1J32ct4YG4hAnroXsi3tiPksLiywBu3yZKJ2SQlJsV+/QCgrP7PRewdJXpI5bsegw/HBDy3uOGzSN1daG05mw="
-  api_key:
-    secure: "C9YWfhRbR94hNRg7b6GkteP9Jo9yIFdHQDwm/uvSPKDIwX4kZimBRFiNXdcw0POtkLje41e2osQeCXc3YLOFKpAetCJs69nvakEQ5Lb1InWWGt4L7h1qnkPQgeJJnvy8GLIkyqQXHG01HbO8isjQoWsmZIFmhESMEyWqKrQ1qxE3swwrU6MLw/+V/mqLAigKze8OzeMe53V6yOUVqPUo8exO9wL9wxC22S0yeCboe/0LUWWpxQNJ1sb4ahsyT3gz3G7Hdzo/r4Zbd+krJnQKDp959U9HV/TMSFsjKoMWg3QwGCDhikeeCrbWpdH/YGmXrOD3wE1IJ+TiLe3TnKVa86rtCdME2a6yKn/1M3nI7Xw0aRaCTn5qLYgRciC5RIHZ933kNbEK0EhHLT9t/CpZlD60r+DWxtbJLFERVQgIObx83IkaXkWnB3+tt5jYH7SeIEVMDPhHtXz5/9kkiSMFgOvdi6CVNB2rDCKqz/L7TgOOrT80AQhCIjzFcHrm0Q0Ijje8T/is0Ck7H67wMlMOWa4L96Dtkddgr+TFw9d6SdnawLAeYrpmWjg1A1qgCHPQGKwfPgO19Gy8n8RvgL/DpimSMFoF4mmx338a58ueUKIzgQ2ZhGbg0VhhF2pOqMpcNKYWjFh0TYd3GYt3N96EUUWuwy6mOi9RpKQ5W21zqjo="
-  tag: next
-  skip_cleanup: true
-  on:
-    branch: master
-    node: 14
-    repo: functionalone/serverless-iam-roles-per-function
-    condition: '"$DEPLOY" = true'
+  # automatic pre-release when merging to master
+  - provider: npm
+    email:
+      secure: "5AV2rx/waiIz0z+CDGWEgUkhNkjBpL+cp5FlSFtrvAaL/LsmaZAgZNlTbxuoUD5Td7jL2TLKk3X9f3CrVBmxuUSHglGBFOOpxKVaOI6u2r20+QRpMt0ETh6csqj0ALK+ePfuf70ER4jg81MxTPlc59V6hnHAdUUsRiVPuNASQlj8pByiSpMcjqW6KWVPk1GIUrKzlKUJfBnWRduFV3yk1I2Qm215myrlRQTa5naAUn+2v289nRhWP6qnG3hmkAVfRhsq+ucu6gbEznEASlyTlZ08TH/2BIldH8956DfNmRUkELHizNLbjwoftnY+alW2XRZFGy+KYMLG6X4llxCoWksNqO6fF+qxZPVeitm68TWWFGIKOM0bAelLn1Unb9VKvyuNfrEi/XtVkYMy9SiaUh3fT3P4PGl1kUg7/iZpJWCKIMDWcqiY1UWIjAAIqH5MaVi2UlrTS+l/2bzLfFsQU0GQBxPMowEjAouZdr9nx9bpCoepO7gUSbglnYQ1h3Z/WbnaGRCWhgBziTbKspUh8YyhGAKrVoA/k1G5IPZ0aqXElggLH4tp49M+5imGMJnJPkkQojltbXzr6D2EJIw11/1J32ct4YG4hAnroXsi3tiPksLiywBu3yZKJ2SQlJsV+/QCgrP7PRewdJXpI5bsegw/HBDy3uOGzSN1daG05mw="
+    api_key:
+      secure: "C9YWfhRbR94hNRg7b6GkteP9Jo9yIFdHQDwm/uvSPKDIwX4kZimBRFiNXdcw0POtkLje41e2osQeCXc3YLOFKpAetCJs69nvakEQ5Lb1InWWGt4L7h1qnkPQgeJJnvy8GLIkyqQXHG01HbO8isjQoWsmZIFmhESMEyWqKrQ1qxE3swwrU6MLw/+V/mqLAigKze8OzeMe53V6yOUVqPUo8exO9wL9wxC22S0yeCboe/0LUWWpxQNJ1sb4ahsyT3gz3G7Hdzo/r4Zbd+krJnQKDp959U9HV/TMSFsjKoMWg3QwGCDhikeeCrbWpdH/YGmXrOD3wE1IJ+TiLe3TnKVa86rtCdME2a6yKn/1M3nI7Xw0aRaCTn5qLYgRciC5RIHZ933kNbEK0EhHLT9t/CpZlD60r+DWxtbJLFERVQgIObx83IkaXkWnB3+tt5jYH7SeIEVMDPhHtXz5/9kkiSMFgOvdi6CVNB2rDCKqz/L7TgOOrT80AQhCIjzFcHrm0Q0Ijje8T/is0Ck7H67wMlMOWa4L96Dtkddgr+TFw9d6SdnawLAeYrpmWjg1A1qgCHPQGKwfPgO19Gy8n8RvgL/DpimSMFoF4mmx338a58ueUKIzgQ2ZhGbg0VhhF2pOqMpcNKYWjFh0TYd3GYt3N96EUUWuwy6mOi9RpKQ5W21zqjo="
+    tag: next
+    skip_cleanup: true
+    on:
+      branch: master
+      node: 14
+      repo: functionalone/serverless-iam-roles-per-function
+      condition: '"$DEPLOY" = true && "$TRAVIS_PULL_REQUEST" = false'
+  # automatic production deploy when merging to release
+  - provider: npm
+    email:
+      secure: "5AV2rx/waiIz0z+CDGWEgUkhNkjBpL+cp5FlSFtrvAaL/LsmaZAgZNlTbxuoUD5Td7jL2TLKk3X9f3CrVBmxuUSHglGBFOOpxKVaOI6u2r20+QRpMt0ETh6csqj0ALK+ePfuf70ER4jg81MxTPlc59V6hnHAdUUsRiVPuNASQlj8pByiSpMcjqW6KWVPk1GIUrKzlKUJfBnWRduFV3yk1I2Qm215myrlRQTa5naAUn+2v289nRhWP6qnG3hmkAVfRhsq+ucu6gbEznEASlyTlZ08TH/2BIldH8956DfNmRUkELHizNLbjwoftnY+alW2XRZFGy+KYMLG6X4llxCoWksNqO6fF+qxZPVeitm68TWWFGIKOM0bAelLn1Unb9VKvyuNfrEi/XtVkYMy9SiaUh3fT3P4PGl1kUg7/iZpJWCKIMDWcqiY1UWIjAAIqH5MaVi2UlrTS+l/2bzLfFsQU0GQBxPMowEjAouZdr9nx9bpCoepO7gUSbglnYQ1h3Z/WbnaGRCWhgBziTbKspUh8YyhGAKrVoA/k1G5IPZ0aqXElggLH4tp49M+5imGMJnJPkkQojltbXzr6D2EJIw11/1J32ct4YG4hAnroXsi3tiPksLiywBu3yZKJ2SQlJsV+/QCgrP7PRewdJXpI5bsegw/HBDy3uOGzSN1daG05mw="
+    api_key:
+      secure: "C9YWfhRbR94hNRg7b6GkteP9Jo9yIFdHQDwm/uvSPKDIwX4kZimBRFiNXdcw0POtkLje41e2osQeCXc3YLOFKpAetCJs69nvakEQ5Lb1InWWGt4L7h1qnkPQgeJJnvy8GLIkyqQXHG01HbO8isjQoWsmZIFmhESMEyWqKrQ1qxE3swwrU6MLw/+V/mqLAigKze8OzeMe53V6yOUVqPUo8exO9wL9wxC22S0yeCboe/0LUWWpxQNJ1sb4ahsyT3gz3G7Hdzo/r4Zbd+krJnQKDp959U9HV/TMSFsjKoMWg3QwGCDhikeeCrbWpdH/YGmXrOD3wE1IJ+TiLe3TnKVa86rtCdME2a6yKn/1M3nI7Xw0aRaCTn5qLYgRciC5RIHZ933kNbEK0EhHLT9t/CpZlD60r+DWxtbJLFERVQgIObx83IkaXkWnB3+tt5jYH7SeIEVMDPhHtXz5/9kkiSMFgOvdi6CVNB2rDCKqz/L7TgOOrT80AQhCIjzFcHrm0Q0Ijje8T/is0Ck7H67wMlMOWa4L96Dtkddgr+TFw9d6SdnawLAeYrpmWjg1A1qgCHPQGKwfPgO19Gy8n8RvgL/DpimSMFoF4mmx338a58ueUKIzgQ2ZhGbg0VhhF2pOqMpcNKYWjFh0TYd3GYt3N96EUUWuwy6mOi9RpKQ5W21zqjo="
+    tag: latest
+    skip_cleanup: true
+    on:
+      branch: release
+      node: 14
+      repo: functionalone/serverless-iam-roles-per-function
+      condition: '"$DEPLOY" = true && "$TRAVIS_PULL_REQUEST" = false'
+  
 
 after_deploy:
   - openssl aes-256-cbc -K $encrypted_8ebb1ef83f64_key -iv $encrypted_8ebb1ef83f64_iv -in github_deploy_key.enc -out github_deploy_key -d

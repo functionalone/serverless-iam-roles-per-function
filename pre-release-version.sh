@@ -8,6 +8,11 @@
 # exit on errors
 set -e
 
+if [[ "$TRAVIS_BRANCH" == release ]]; then
+    echo "Not setting pre-release version as this is a build on release"
+    exit 0
+fi
+
 # IMPORTANT: Make sure when writing sed command to use: sed -i "${INPLACE[@]}" 
 # to be compatible with mac and linux
 # sed on mac requires '' as param and on linux doesn't
