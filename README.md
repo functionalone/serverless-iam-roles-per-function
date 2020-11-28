@@ -128,16 +128,16 @@ functions:
 ## Contributing
 Contributions are welcome and appreciated. 
 
-* Before opening a PR it is best to first open an [issue](https://github.com/functionalone/serverless-iam-roles-per-function/issues/new) and describe in the issue what you want you plan to implement/fix. Based on the feedback in the issue, you will hopefully be able to plan how to implement your PR. 
+* Before opening a PR it is best to first open an [issue](https://github.com/functionalone/serverless-iam-roles-per-function/issues/new). Describe in the issue what you want you plan to implement/fix. Based on the feedback in the issue, you should be able to plan how to implement your PR. 
 * Once ready, open a [PR](https://github.com/functionalone/serverless-iam-roles-per-function/compare) to contribute your code.
-* To help updating the [CHANGELOG.md](CHANGELOG.md) we use [standard-version](https://github.com/conventional-changelog/standard-version). Make sure to use conventional commit messages as specified at: https://www.conventionalcommits.org/en/v1.0.0/.
+* To help updating the [CHANGELOG.md](CHANGELOG.md) file, we use [standard-version](https://github.com/conventional-changelog/standard-version). Make sure to use conventional commit messages as specified at: https://www.conventionalcommits.org/en/v1.0.0/.
 * Update the release notes at [CHANGELOG.md](CHANGELOG.md) and bump the version by running:
   ```
   npm run release 
   ```
 * Examine the [CHANGELOG.md](CHANGELOG.md) and update if still required.
 * Don't forget to commit the files modified by `npm run release` (we have the auto-commit option disabled by default).
-* Once the PR is approved and merged into master, travis-ci will automatically tag the version you created and deploy to npmjs under the `next` tag. You will see your version deployed at: https://www.npmjs.com/package/serverless-iam-roles-per-function?activeTab=versionsj.
+* Once the PR is approved and merged into master, travis-ci will automatically tag the version you created and deploy to npmjs under the `next` tag. You will see your version deployed at: https://www.npmjs.com/package/serverless-iam-roles-per-function?activeTab=versions.
 * Test your deployed version by installing with the `next` tag. For example:
   ```
   npm install --save-dev serverless-iam-roles-per-function@next
