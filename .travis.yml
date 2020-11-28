@@ -58,7 +58,6 @@ deploy:
       node: 14
       repo: functionalone/serverless-iam-roles-per-function
       condition: '"$DEPLOY" = true && "$TRAVIS_PULL_REQUEST" = false'
-  
 
 after_deploy:
   - openssl aes-256-cbc -K $encrypted_8ebb1ef83f64_key -iv $encrypted_8ebb1ef83f64_iv -in github_deploy_key.enc -out github_deploy_key -d

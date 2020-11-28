@@ -11,6 +11,8 @@
 # exit on errors
 set -e
 
+git checkout -- package.json
+
 PKG_VER=v$(node -p "require('./package.json').version")
 
 echo "Version from package.json: $PKG_VER"
@@ -23,4 +25,7 @@ fi
 git config --local user.email "builds@travis-ci.com"
 git config --local user.name "Travis CI"
 git tag "$PKG_VER"
-GIT_SSH_COMMAND='ssh -i github_deploy_key -o IdentitiesOnly=yes' git push origin "$PKG_VER"
+git remote add origin-ssh git@github.com:functionalone/serverless-iam-roles-per-function.git
+echo "Git remotes:"
+git remote -v
+GIT_SSH_COMMAND='ssh -i github_deploy_key -o IdentitiesOnly=yes' git push origin-ssh "$PKG_VER"
