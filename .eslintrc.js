@@ -33,6 +33,7 @@ module.exports = {
     'camelcase': ERROR,
     'space-infix-ops': ERROR,
     'keyword-spacing': ERROR,
+    'space-before-blocks': ERROR,
     'spaced-comment': ERROR,
     'arrow-body-style': [ERROR, 'as-needed'],
     'comma-dangle': [ERROR, 'always-multiline'],
