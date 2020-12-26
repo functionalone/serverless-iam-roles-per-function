@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.1.0](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v3.0.2...v3.1.0) (2020-12-17)
+
+
+### Features
+
+* Permission boundary [PR#68](https://github.com/functionalone/serverless-iam-roles-per-function/pull/68)
+
 ## [3.0.2](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v3.0.1...v3.0.2) (2020-12-04)
 
 ### Bug Fixes
