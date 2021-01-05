@@ -429,7 +429,9 @@ describe('plugin tests', function(this: any) {
       it('should add permission policy arn when there is iamGlobalPermissionsBoundary defined', () => {
         const compiledResources = serverless.service.provider.compiledCloudFormationTemplate.Resources;
         serverless.service.custom['serverless-iam-roles-per-function'] = {
-          iamGlobalPermissionsBoundary: 'arn:aws:iam::xxxxx:policy/permissions_boundary',
+          iamGlobalPermissionsBoundary: {
+            'Fn::Sub': 'arn:aws:iam::xxxxx:policy/permissions_boundary',
+          },
         };
         plugin.createRolesPerFunction();
         const defaultIamRoleLambdaExecution = compiledResources.IamRoleLambdaExecution;

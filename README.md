@@ -125,7 +125,7 @@ functions:
     ...
 ```  
 
-## Permissions boundaries
+## PermissionsBoundary
 
 Define iamPermissionsBoundary definitions at the function level:
 
@@ -133,7 +133,7 @@ Define iamPermissionsBoundary definitions at the function level:
 functions:
   func1:
     handler: handler.get
-    iamPermissionsBoundary: arn:aws:iam::xxxxx:policy/your_permissions_boundary_policy
+    iamPermissionsBoundary: !Sub arn:aws:iam::xxxxx:policy/your_permissions_boundary_policy
     iamRoleStatementsName: my-custom-role-name 
     iamRoleStatements:
       - Effect: "Allow"        
@@ -148,7 +148,7 @@ You can set permissionsBoundary for all roles with iamGlobalPermissionsBoundary 
 ```yaml
 custom:
   serverless-iam-roles-per-function:
-    iamGlobalPermissionsBoundary: arn:aws:iam::xxxx:policy/permissions-boundary-policy
+    iamGlobalPermissionsBoundary: !Sub arn:aws:iam::xxxx:policy/permissions-boundary-policy
 ```
 
 For more information, see [Permissions Boundaries](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html).
