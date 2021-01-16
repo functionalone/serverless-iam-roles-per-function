@@ -110,7 +110,9 @@
     "helloPermissionsBoundary": {
       "handler": "handler.permissionsBoundary",
       "iamRoleStatements": [],
-      "iamPermissionsBoundary": "arn:aws:iam::xxxxx:policy/your_permissions_boundary_policy",
+      "iamPermissionsBoundary": {
+        "Fn::Sub": "arn:aws:iam::xxxxx:policy/your_permissions_boundary_policy"
+      },
       "events": [],
       "name": "test-permissions-boundary-hello",
       "package": {}

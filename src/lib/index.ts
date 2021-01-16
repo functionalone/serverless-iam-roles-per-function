@@ -40,7 +40,7 @@ class ServerlessIamPerFunctionPlugin {
             type: 'object',
             properties: {
               defaultInherit: { type: 'boolean' },
-              iamGlobalPermissionsBoundary: { $ref: '#/definitions/awsArnString' },
+              iamGlobalPermissionsBoundary: { $ref: '#/definitions/awsArn' },
             },
             additionalProperties: false,
           },
@@ -55,7 +55,7 @@ class ServerlessIamPerFunctionPlugin {
           properties: {
             iamRoleStatementsInherit: { type: 'boolean' },
             iamRoleStatementsName: { type: 'string' },
-            iamPermissionsBoundary: { $ref: '#/definitions/awsArnString' },
+            iamPermissionsBoundary: { $ref: '#/definitions/awsArn' },
             iamRoleStatements: { $ref: '#/definitions/awsIamPolicyStatements' },
           },
         });
@@ -362,15 +362,11 @@ class ServerlessIamPerFunctionPlugin {
       _.get(this.serverless.service, `custom.${PLUGIN_NAME}.iamGlobalPermissionsBoundary`);
 
     if (iamPermissionsBoundary || iamGlobalPermissionsBoundary) {
-      functionIamRole.Properties.PermissionsBoundary = {
-        'Fn::Sub': iamPermissionsBoundary || iamGlobalPermissionsBoundary,
-      }
+      functionIamRole.Properties.PermissionsBoundary = iamPermissionsBoundary || iamGlobalPermissionsBoundary;
     }
 
     if (iamGlobalPermissionsBoundary) {
-      globalIamRole.Properties.PermissionsBoundary = {
-        'Fn::Sub': iamGlobalPermissionsBoundary,
-      }
+      globalIamRole.Properties.PermissionsBoundary = iamGlobalPermissionsBoundary;
     }
 
     functionIamRole.Properties.RoleName = functionObject.iamRoleStatementsName
