@@ -125,6 +125,35 @@ functions:
     ...
 ```  
 
+## Permissions boundaries
+
+Define iamPermissionsBoundary definitions at the function level:
+
+```yaml
+functions:
+  func1:
+    handler: handler.get
+    iamPermissionsBoundary: arn:aws:iam::xxxxx:policy/your_permissions_boundary_policy
+    iamRoleStatementsName: my-custom-role-name 
+    iamRoleStatements:
+      - Effect: "Allow"        
+        Action:
+          - sqs:*        
+        Resource: "*"
+    ...
+```
+
+You can set permissionsBoundary for all roles with iamGlobalPermissionsBoundary in custom:
+
+```yaml
+custom:
+  serverless-iam-roles-per-function:
+    iamGlobalPermissionsBoundary: arn:aws:iam::xxxx:policy/permissions-boundary-policy
+```
+
+For more information, see [Permissions Boundaries](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html).
+
+
 ## Contributing
 Contributions are welcome and appreciated. 
 
@@ -143,6 +172,16 @@ Contributions are welcome and appreciated.
   npm install --save-dev serverless-iam-roles-per-function@next
   ``` 
 
+## Publishing a Production Release (Maintainers)
+Once a contributed PR (or multiple PRs) have been merged into `master`, there is need to publish a production release, after we are sure that the release is stable. Maintainers with commit access to the repository can publish a release by merging into the `release` branch. Steps to follow:
+* Verify that the current deployed pre-release version under the `next` tag in npmjs is working properly. Usually, it is best to allow the `next` version to gain traction a week or two before releasing. Also, if the version solves a specific reported issue, ask the community on the issue to test out the `next` version.
+* Make sure the version being used in master hasn't been released. This can happen if a PR was merged without bumping the version by running `npm run release`. If the version needs to be advanced, open a PR to advance the version as specified [here](#contributing).
+* Open a PR to merge into the `release` branch. Use as a base the `release` branch and compare the `tag` version to `release`. For example:
+![Example PR](https://user-images.githubusercontent.com/1395797/101236848-1866e180-36dd-11eb-9281-6c726d15e4f1.png)
+
+* Once approved by another maintainer, merge the PR.
+* Make sure to check after the Travis CI build completes that the release has been published to the `latest` tag on [nmpjs](https://www.npmjs.com/package/serverless-iam-roles-per-function?activeTab=versions). 
+
 ## More Info
 
 **Introduction post**:
@@ -155,8 +194,8 @@ Contributions are welcome and appreciated.
 [npm-url]:http://npmjs.org/package/serverless-iam-roles-per-function
 [sls-image]:http://public.serverless.com/badges/v3.svg
 [sls-url]:http://www.serverless.com
-[travis-image]:https://travis-ci.org/functionalone/serverless-iam-roles-per-function.svg?branch=master
-[travis-url]:https://travis-ci.org/functionalone/serverless-iam-roles-per-function
+[travis-image]:https://travis-ci.com/functionalone/serverless-iam-roles-per-function.svg?branch=master
+[travis-url]:https://travis-ci.com/functionalone/serverless-iam-roles-per-function
 [david-image]:https://david-dm.org/functionalone/serverless-iam-roles-per-function/status.svg
 [david-url]:https://david-dm.org/functionalone/serverless-iam-roles-per-function
 [coveralls-image]:https://coveralls.io/repos/github/functionalone/serverless-iam-roles-per-function/badge.svg?branch=master

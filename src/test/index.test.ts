@@ -417,6 +417,25 @@ describe('plugin tests', function(this: any) {
         assert.isTrue(statements.find((s) => s.Action[0] === 'xray:PutTelemetryRecords') === undefined,
           'global statements not imported as iamRoleStatementsInherit is false');
       });
+
+      it('should add permission policy arn when there is iamPermissionsBoundary defined', () => {
+        const compiledResources = serverless.service.provider.compiledCloudFormationTemplate.Resources;
+        plugin.createRolesPerFunction();
+        const helloPermissionsBoundaryIamRole = compiledResources.HelloPermissionsBoundaryIamRoleLambdaExecution;
+        const policyName = helloPermissionsBoundaryIamRole.Properties.PermissionsBoundary['Fn::Sub'];
+        assert.equal(policyName, 'arn:aws:iam::xxxxx:policy/your_permissions_boundary_policy');
+      })
+
+      it('should add permission policy arn when there is iamGlobalPermissionsBoundary defined', () => {
+        const compiledResources = serverless.service.provider.compiledCloudFormationTemplate.Resources;
+        serverless.service.custom['serverless-iam-roles-per-function'] = {
+          iamGlobalPermissionsBoundary: 'arn:aws:iam::xxxxx:policy/permissions_boundary',
+        };
+        plugin.createRolesPerFunction();
+        const defaultIamRoleLambdaExecution = compiledResources.IamRoleLambdaExecution;
+        const policyName = defaultIamRoleLambdaExecution.Properties.PermissionsBoundary['Fn::Sub'];
+        assert.equal(policyName, 'arn:aws:iam::xxxxx:policy/permissions_boundary');
+      })
     });
   });
 

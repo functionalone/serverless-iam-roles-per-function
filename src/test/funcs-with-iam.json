@@ -106,6 +106,14 @@
         "securityGroupIds": ["sg-xxxxxx"],
         "subnetIds": ["subnet-xxxx", "subnet-yyyy"]
       }
+    },
+    "helloPermissionsBoundary": {
+      "handler": "handler.permissionsBoundary",
+      "iamRoleStatements": [],
+      "iamPermissionsBoundary": "arn:aws:iam::xxxxx:policy/your_permissions_boundary_policy",
+      "events": [],
+      "name": "test-permissions-boundary-hello",
+      "package": {}
     }
   },
   "resources": {
