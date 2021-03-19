@@ -445,12 +445,12 @@ describe('plugin tests', function(this: any) {
     const getLambdaTestStatements = (): any[] => {
       const plugin = new Plugin(serverless);
 
-        const compiledResources = serverless.service.provider.compiledCloudFormationTemplate.Resources;
-        plugin.createRolesPerFunction();
-        const helloInherit = compiledResources.HelloInheritIamRoleLambdaExecution;
-        assert.isNotEmpty(helloInherit);
+      const compiledResources = serverless.service.provider.compiledCloudFormationTemplate.Resources;
+      plugin.createRolesPerFunction();
+      const helloInherit = compiledResources.HelloInheritIamRoleLambdaExecution;
+      assert.isNotEmpty(helloInherit);
 
-        return helloInherit.Properties.Policies[0].PolicyDocument.Statement;
+      return helloInherit.Properties.Policies[0].PolicyDocument.Statement;
     }
 
     it('no global iam and iamRoleStatements properties', () => {
@@ -483,7 +483,7 @@ describe('plugin tests', function(this: any) {
 
       it('no role property', () => {
         _.set(serverless.service, 'provider.iam', {
-          deploymentRole: 'arn:aws:iam::123456789012:role/deploy-role'
+          deploymentRole: 'arn:aws:iam::123456789012:role/deploy-role',
         });
 
         const statements = getLambdaTestStatements();
@@ -498,7 +498,7 @@ describe('plugin tests', function(this: any) {
 
       it('role property set to role ARN', () => {
         _.set(serverless.service, 'provider.iam', {
-          role: 'arn:aws:iam::0123456789:role//my/default/path/roleInMyAccount'
+          role: 'arn:aws:iam::0123456789:role//my/default/path/roleInMyAccount',
         });
 
         const statements = getLambdaTestStatements();
@@ -514,8 +514,8 @@ describe('plugin tests', function(this: any) {
       it('role is set without statements', () => {
         _.set(serverless.service, 'provider.iam', {
           role: {
-            managedPolicies: ['arn:aws:iam::123456789012:user/*']
-          }
+            managedPolicies: ['arn:aws:iam::123456789012:user/*'],
+          },
         });
 
         const statements = getLambdaTestStatements();
@@ -531,8 +531,8 @@ describe('plugin tests', function(this: any) {
       it('empty statements', () => {
         _.set(serverless.service, 'provider.iam', {
           role: {
-            statements: []
-          }
+            statements: [],
+          },
         });
 
         const statements = getLambdaTestStatements();
@@ -545,18 +545,18 @@ describe('plugin tests', function(this: any) {
         );
       });
     });
- 
+
     it('global iam role statements exists in lambda role statements', () => {
       _.set(serverless.service, 'provider.iam', {
         role: {
           statements: [{
             Effect: 'Allow',
             Action: [
-              'ec2:CreateNetworkInterface'
+              'ec2:CreateNetworkInterface',
             ],
-            Resource: '*'
-          }]
-        }
+            Resource: '*',
+          }],
+        },
       });
 
       const statements = getLambdaTestStatements();
