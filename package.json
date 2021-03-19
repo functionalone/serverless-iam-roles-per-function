@@ -1,7 +1,7 @@
 {
   "name": "serverless-iam-roles-per-function",
   "private": false,
-  "version": "3.1.1",
+  "version": "3.2.0",
   "engines": {
     "node": ">=10"
   },
