@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.2.0](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v3.1.1...v3.2.0) (2021-03-19)
+
+
+### Features
+
+* Support new provider.iam property ([0d3dd37](https://github.com/functionalone/serverless-iam-roles-per-function/commit/0d3dd37328b283cafc92f42dbc16ed37a6ecd7b2)), closes [#73](https://github.com/functionalone/serverless-iam-roles-per-function/issues/73)
+
 ### [3.1.1](https://github.com/functionalone/serverless-iam-roles-per-function/compare/v3.1.0...v3.1.1) (2021-01-03)
 
 
