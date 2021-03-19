@@ -34,7 +34,12 @@ describe('plugin tests', function(this: any) {
   beforeEach(async () => {
     serverless = new Serverless();
     serverless.cli = new serverless.classes.CLI();
-    serverless.processedInput = serverless.cli.processInput();
+    
+    // Since serverless 2.24.0 processInput function doesn't exists
+    if (serverless.cli.processInput) {
+      serverless.processedInput = serverless.cli.processInput();
+    }
+
     Object.assign(serverless.service, _.cloneDeep(funcWithIamTemplate));
     serverless.service.provider.compiledCloudFormationTemplate = {
       Resources: {},
