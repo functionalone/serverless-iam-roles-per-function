@@ -441,4 +441,136 @@ describe('plugin tests', function(this: any) {
     });
   });
 
+  describe('support new provider.iam property', () => {
+    const getLambdaTestStatements = (): any[] => {
+      const plugin = new Plugin(serverless);
+
+        const compiledResources = serverless.service.provider.compiledCloudFormationTemplate.Resources;
+        plugin.createRolesPerFunction();
+        const helloInherit = compiledResources.HelloInheritIamRoleLambdaExecution;
+        assert.isNotEmpty(helloInherit);
+
+        return helloInherit.Properties.Policies[0].PolicyDocument.Statement;
+    }
+
+    it('no global iam and iamRoleStatements properties', () => {
+      _.set(serverless.service, 'provider.iam', undefined);
+      _.set(serverless.service, 'provider.iamRoleStatements', undefined);
+
+      const statements = getLambdaTestStatements();
+
+      assert.isTrue(statements.find((s) => s.Action[0] === 'xray:PutTelemetryRecords') === undefined,
+        'provider.iamRoleStatements values shouldn\'t exists');
+      assert.isObject(
+        statements.find((s) => s.Action[0] === 'dynamodb:GetItem'),
+        'per function statements imported upon inherit',
+      );
+    });
+
+    describe('new iam property takes precedence over old iamRoleStatements property', () => {
+      it('empty iam object', () => {
+        _.set(serverless.service, 'provider.iam', {});
+
+        const statements = getLambdaTestStatements();
+
+        assert.isTrue(statements.find((s) => s.Action[0] === 'xray:PutTelemetryRecords') === undefined,
+          'provider.iamRoleStatements values shouldn\'t exists');
+        assert.isObject(
+          statements.find((s) => s.Action[0] === 'dynamodb:GetItem'),
+          'per function statements imported upon inherit',
+        );
+      });
+
+      it('no role property', () => {
+        _.set(serverless.service, 'provider.iam', {
+          deploymentRole: 'arn:aws:iam::123456789012:role/deploy-role'
+        });
+
+        const statements = getLambdaTestStatements();
+
+        assert.isTrue(statements.find((s) => s.Action[0] === 'xray:PutTelemetryRecords') === undefined,
+          'provider.iamRoleStatements values shouldn\'t exists');
+        assert.isObject(
+          statements.find((s) => s.Action[0] === 'dynamodb:GetItem'),
+          'per function statements imported upon inherit',
+        );
+      });
+
+      it('role property set to role ARN', () => {
+        _.set(serverless.service, 'provider.iam', {
+          role: 'arn:aws:iam::0123456789:role//my/default/path/roleInMyAccount'
+        });
+
+        const statements = getLambdaTestStatements();
+
+        assert.isTrue(statements.find((s) => s.Action[0] === 'xray:PutTelemetryRecords') === undefined,
+          'provider.iamRoleStatements values shouldn\'t exists');
+        assert.isObject(
+          statements.find((s) => s.Action[0] === 'dynamodb:GetItem'),
+          'per function statements imported upon inherit',
+        );
+      });
+
+      it('role is set without statements', () => {
+        _.set(serverless.service, 'provider.iam', {
+          role: {
+            managedPolicies: ['arn:aws:iam::123456789012:user/*']
+          }
+        });
+
+        const statements = getLambdaTestStatements();
+
+        assert.isTrue(statements.find((s) => s.Action[0] === 'xray:PutTelemetryRecords') === undefined,
+          'provider.iamRoleStatements values shouldn\'t exists');
+        assert.isObject(
+          statements.find((s) => s.Action[0] === 'dynamodb:GetItem'),
+          'per function statements imported upon inherit',
+        );
+      });
+
+      it('empty statements', () => {
+        _.set(serverless.service, 'provider.iam', {
+          role: {
+            statements: []
+          }
+        });
+
+        const statements = getLambdaTestStatements();
+
+        assert.isTrue(statements.find((s) => s.Action[0] === 'xray:PutTelemetryRecords') === undefined,
+          'provider.iamRoleStatements values shouldn\'t exists');
+        assert.isObject(
+          statements.find((s) => s.Action[0] === 'dynamodb:GetItem'),
+          'per function statements imported upon inherit',
+        );
+      });
+    });
+ 
+    it('global iam role statements exists in lambda role statements', () => {
+      _.set(serverless.service, 'provider.iam', {
+        role: {
+          statements: [{
+            Effect: 'Allow',
+            Action: [
+              'ec2:CreateNetworkInterface'
+            ],
+            Resource: '*'
+          }]
+        }
+      });
+
+      const statements = getLambdaTestStatements();
+
+      assert.isObject(
+        statements.find((s) => s.Action[0] === 'ec2:CreateNetworkInterface'),
+        'global iam role statements exists',
+      );
+      assert.isTrue(statements.find((s) => s.Action[0] === 'xray:PutTelemetryRecords') === undefined,
+        'old provider.iamRoleStatements shouldn\'t exists');
+      assert.isObject(
+        statements.find((s) => s.Action[0] === 'dynamodb:GetItem'),
+        'per function statements imported upon inherit',
+      );
+    });
+  });
 });
