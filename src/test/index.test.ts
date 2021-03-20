@@ -35,7 +35,7 @@ describe('plugin tests', function(this: any) {
     serverless = new Serverless();
     serverless.cli = new serverless.classes.CLI();
 
-    // Since serverless 2.24.0 processInput function doesn't exists
+    // Since serverless 2.24.0 processInput function doesn't exist
     if (serverless.cli.processInput) {
       serverless.processedInput = serverless.cli.processInput();
     }
