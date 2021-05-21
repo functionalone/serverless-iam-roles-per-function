@@ -72,6 +72,31 @@ functions:
 
 By default, function level `iamRoleStatements` override the provider level definition. It is also possible to inherit the provider level definition by specifying the option `iamRoleStatementsInherit: true`:
 
+**serverless >= v2.24.0**
+```yaml
+provider:
+  name: aws
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+            - xray:PutTelemetryRecords
+            - xray:PutTraceSegments
+          Resource: "*"
+  ...
+functions:
+  func1:
+    handler: handler.get
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+      - Effect: "Allow"        
+        Action:
+          - dynamodb:GetItem        
+        Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/mytable"
+```
+
+**serverless < v2.24.0**
 ```yaml
 provider:
   name: aws
@@ -92,6 +117,7 @@ functions:
           - dynamodb:GetItem        
         Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/mytable"
 ```
+
 The generated role for `func1` will contain both the statements defined at the provider level and the ones defined at the function level.
 
 If you wish to change the default behavior to `inherit` instead of `override` it is possible to specify the following custom configuration:
@@ -125,7 +151,7 @@ functions:
     ...
 ```  
 
-## Permissions boundaries
+## PermissionsBoundary
 
 Define iamPermissionsBoundary definitions at the function level:
 
@@ -133,7 +159,7 @@ Define iamPermissionsBoundary definitions at the function level:
 functions:
   func1:
     handler: handler.get
-    iamPermissionsBoundary: arn:aws:iam::xxxxx:policy/your_permissions_boundary_policy
+    iamPermissionsBoundary: !Sub arn:aws:iam::xxxxx:policy/your_permissions_boundary_policy
     iamRoleStatementsName: my-custom-role-name 
     iamRoleStatements:
       - Effect: "Allow"        
@@ -148,7 +174,7 @@ You can set permissionsBoundary for all roles with iamGlobalPermissionsBoundary 
 ```yaml
 custom:
   serverless-iam-roles-per-function:
-    iamGlobalPermissionsBoundary: arn:aws:iam::xxxx:policy/permissions-boundary-policy
+    iamGlobalPermissionsBoundary: !Sub arn:aws:iam::xxxx:policy/permissions-boundary-policy
 ```
 
 For more information, see [Permissions Boundaries](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html).

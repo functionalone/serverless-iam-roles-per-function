@@ -40,7 +40,7 @@ class ServerlessIamPerFunctionPlugin {
             type: 'object',
             properties: {
               defaultInherit: { type: 'boolean' },
-              iamGlobalPermissionsBoundary: { $ref: '#/definitions/awsArnString' },
+              iamGlobalPermissionsBoundary: { $ref: '#/definitions/awsArn' },
             },
             additionalProperties: false,
           },
@@ -55,7 +55,7 @@ class ServerlessIamPerFunctionPlugin {
           properties: {
             iamRoleStatementsInherit: { type: 'boolean' },
             iamRoleStatementsName: { type: 'string' },
-            iamPermissionsBoundary: { $ref: '#/definitions/awsArnString' },
+            iamPermissionsBoundary: { $ref: '#/definitions/awsArn' },
             iamRoleStatements: { $ref: '#/definitions/awsIamPolicyStatements' },
           },
         });
@@ -344,8 +344,15 @@ class ServerlessIamPerFunctionPlugin {
     const isInherit = functionObject.iamRoleStatementsInherit
       || (this.defaultInherit && functionObject.iamRoleStatementsInherit !== false);
 
-    if (isInherit && !_.isEmpty(this.serverless.service.provider.iamRoleStatements)) { // add global statements
-      for (const s of this.serverless.service.provider.iamRoleStatements) {
+    // Since serverless 2.24.0 provider.iamRoleStatements is deprecated
+    // https://github.com/serverless/serverless/blob/master/CHANGELOG.md#2240-2021-02-16
+    // Support old & new iam statements by checking if `iam` property exists
+    const providerIamRoleStatements = this.serverless.service.provider.iam
+      ? this.serverless.service.provider.iam.role?.statements
+      : this.serverless.service.provider.iamRoleStatements;
+
+    if (isInherit && !_.isEmpty(providerIamRoleStatements)) { // add global statements
+      for (const s of providerIamRoleStatements) {
         policyStatements.push(s);
       }
     }
@@ -362,15 +369,11 @@ class ServerlessIamPerFunctionPlugin {
       _.get(this.serverless.service, `custom.${PLUGIN_NAME}.iamGlobalPermissionsBoundary`);
 
     if (iamPermissionsBoundary || iamGlobalPermissionsBoundary) {
-      functionIamRole.Properties.PermissionsBoundary = {
-        'Fn::Sub': iamPermissionsBoundary || iamGlobalPermissionsBoundary,
-      }
+      functionIamRole.Properties.PermissionsBoundary = iamPermissionsBoundary || iamGlobalPermissionsBoundary;
     }
 
     if (iamGlobalPermissionsBoundary) {
-      globalIamRole.Properties.PermissionsBoundary = {
-        'Fn::Sub': iamGlobalPermissionsBoundary,
-      }
+      globalIamRole.Properties.PermissionsBoundary = iamGlobalPermissionsBoundary;
     }
 
     functionIamRole.Properties.RoleName = functionObject.iamRoleStatementsName
