@@ -5,6 +5,12 @@ import os from 'os';
 import fs from 'fs';
 import path from 'path';
 
+interface Statement {
+  Effect: 'Allow' | 'Deny';
+  Action: string | string[];
+  Resource: string | any[];
+}
+
 const Serverless = require('serverless/lib/Serverless');
 const funcWithIamTemplate = require('../../src/test/funcs-with-iam.json');
 
@@ -315,10 +321,18 @@ describe('plugin tests', function(this: any) {
         // verify helloEmptyIamStatements
         const helloEmptyIamStatementsRole = compiledResources.HelloEmptyIamStatementsIamRoleLambdaExecution;
         assertFunctionRoleName('helloEmptyIamStatements', helloEmptyIamStatementsRole.Properties.RoleName);
-        // assert.equal(
-        //   helloEmptyIamStatementsRole.Properties.ManagedPolicyArns[0],
-        //   'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole',
-        // );
+        const helloManagedPolicy = helloEmptyIamStatementsRole.Properties.ManagedPolicyArns[0];
+        assert.isTrue(
+          helloManagedPolicy
+          && helloManagedPolicy['Fn::Join']
+          && helloManagedPolicy['Fn::Join'][1][2] === ':iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole',
+          'VPC managed policy is set',
+        );
+
+        const helloPermissionsBoundaryIamRole = compiledResources.HelloPermissionsBoundaryIamRoleLambdaExecution;
+        const helloPermissionsBoundaryManagedPolicy = helloPermissionsBoundaryIamRole.Properties.ManagedPolicyArns[0];
+        assert.isUndefined(helloPermissionsBoundaryManagedPolicy, 'VPC managed policy not set');
+
         const helloEmptyFunctionResource = compiledResources.HelloEmptyIamStatementsLambdaFunction;
         assert.isTrue(
           helloEmptyFunctionResource.DependsOn.indexOf('HelloEmptyIamStatementsIamRoleLambdaExecution') >= 0,
@@ -395,11 +409,16 @@ describe('plugin tests', function(this: any) {
         const helloRole = compiledResources.HelloIamRoleLambdaExecution;
         assert.isNotEmpty(helloRole);
         assertFunctionRoleName('hello', helloRole.Properties.RoleName);
-        // check depends and role is set properlly
+        // check depends and role is set properly
         const helloFunctionResource = compiledResources.HelloLambdaFunction;
         assert.isTrue(
           helloFunctionResource.DependsOn.indexOf('HelloIamRoleLambdaExecution') >= 0,
           'function resource depends on role',
+        );
+        assert.equal(
+          helloRole.Properties.ManagedPolicyArns[0],
+          'arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy',
+          'function managed policies inherited',
         );
         assert.equal(
           helloFunctionResource.Properties.Role['Fn::GetAtt'][0],
@@ -458,9 +477,10 @@ describe('plugin tests', function(this: any) {
       return helloInherit.Properties.Policies[0].PolicyDocument.Statement;
     }
 
-    it('no global iam and iamRoleStatements properties', () => {
+    it('no global iam, iamRoleStatements and iamManagedPolicies properties', () => {
       _.set(serverless.service, 'provider.iam', undefined);
       _.set(serverless.service, 'provider.iamRoleStatements', undefined);
+      _.set(serverless.service, 'provider.iamManagedPolicies', undefined);
 
       const statements = getLambdaTestStatements();
 
@@ -472,7 +492,7 @@ describe('plugin tests', function(this: any) {
       );
     });
 
-    describe('new iam property takes precedence over old iamRoleStatements property', () => {
+    describe('new iam property takes precedence over old iamRoleStatements and iamManagedPolicies property', () => {
       it('empty iam object', () => {
         _.set(serverless.service, 'provider.iam', {});
 
@@ -516,19 +536,31 @@ describe('plugin tests', function(this: any) {
         );
       });
 
-      it('role is set without statements', () => {
+      it('role is set without statements and with managed policies', () => {
+        const customManagedPolicy = 'arn:aws:iam::123456789012:user/*';
         _.set(serverless.service, 'provider.iam', {
           role: {
-            managedPolicies: ['arn:aws:iam::123456789012:user/*'],
+            managedPolicies: [customManagedPolicy],
           },
         });
 
-        const statements = getLambdaTestStatements();
+        const plugin = new Plugin(serverless);
 
-        assert.isTrue(statements.find((s) => s.Action[0] === 'xray:PutTelemetryRecords') === undefined,
+        const compiledResources = serverless.service.provider.compiledCloudFormationTemplate.Resources;
+        plugin.createRolesPerFunction();
+        const helloInherit = compiledResources.HelloInheritIamRoleLambdaExecution;
+        assert.isNotEmpty(helloInherit);
+
+        const statements = helloInherit.Properties.Policies[0].PolicyDocument.Statement;
+        const managedPolicies = helloInherit.Properties.ManagedPolicyArns;
+
+        assert.isTrue(managedPolicies.indexOf(customManagedPolicy) === 0, 'function managed policies inherited');
+
+        assert.isTrue(statements.find((s: Statement) => s.Action[0] === 'xray:PutTelemetryRecords') === undefined,
           'provider.iamRoleStatements values shouldn\'t exists');
+
         assert.isObject(
-          statements.find((s) => s.Action[0] === 'dynamodb:GetItem'),
+          statements.find((s: Statement) => s.Action[0] === 'dynamodb:GetItem'),
           'per function statements imported upon inherit',
         );
       });
