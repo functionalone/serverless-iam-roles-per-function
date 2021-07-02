@@ -11,6 +11,7 @@ interface Statement {
   Resource: string | any[];
 }
 
+process.env['SLS_DEPRECATION_DISABLE'] = 'CLI_OPTIONS_BEFORE_COMMAND';
 const Serverless = require('serverless/lib/Serverless');
 const funcWithIamTemplate = require('../../src/test/funcs-with-iam.json');
 

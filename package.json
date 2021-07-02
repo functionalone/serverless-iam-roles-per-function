@@ -37,29 +37,29 @@
     "security"
   ],
   "dependencies": {
-    "lodash": "^4.17.20"
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@serverless/enterprise-plugin": "^4.1.2",
-    "@types/chai": "^4.2.14",
-    "@types/lodash": "^4.14.165",
-    "@types/mocha": "^8.0.4",
+    "@serverless/enterprise-plugin": "^4.6.0",
+    "@types/chai": "^4.2.19",
+    "@types/lodash": "^4.14.170",
+    "@types/mocha": "^8.2.2",
     "@types/node": "^12.19.6",
-    "@typescript-eslint/eslint-plugin": "^4.8.2",
-    "@typescript-eslint/parser": "^4.8.2",
-    "chai": "^4.2.0",
-    "coveralls": "^3.1.0",
-    "eslint": "^7.14.0",
-    "eslint-plugin-import": "^2.22.1",
-    "mocha": "^8.2.1",
+    "@typescript-eslint/eslint-plugin": "^4.28.1",
+    "@typescript-eslint/parser": "^4.28.1",
+    "chai": "^4.3.4",
+    "coveralls": "^3.1.1",
+    "eslint": "^7.29.0",
+    "eslint-plugin-import": "^2.23.4",
+    "mocha": "^9.0.1",
     "npm-get-version": "^1.0.2",
     "nyc": "^15.1.0",
     "rimraf": "^3.0.2",
-    "serverless": "^2.12.0",
+    "serverless": "^2.50.0",
     "source-map-support": "^0.5.19",
-    "standard-version": "^9.0.0",
+    "standard-version": "^9.3.0",
     "ts-node": "^9.0.0",
-    "typescript": "^4.1.2"
+    "typescript": "^4.3.5"
   },
   "files": [
     "dist/index.*",
