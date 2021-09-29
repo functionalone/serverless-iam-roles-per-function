@@ -55,7 +55,7 @@ functions:
 
 The plugin will create a dedicated role for each function that has an `iamRoleStatements` definition. It will include the permissions for create and write to CloudWatch logs, stream events and if VPC is defined: `AWSLambdaVPCAccessExecutionRole` will be included (as is done when using `iamRoleStatements` at the provider level).
 
-if `iamRoleStatements` are not defined at the function level default behavior is maintained and the function will receive the global iam role. It is possible to define an empty `iamRoleStatements` for a function and then the function will receive a dedicated role with only the permissions needed for CloudWatch and (if needed) stream events and VPC. Example of defining a function with empty `iamRoleStatements` and configured VPC. The function will receive a custom role with CloudWatch logs permissions and the policy `AWSLambdaVPCAccessExecutionRole`:
+if `iamRoleStatements` are not defined at the function level default behavior is maintained and the function will receive the global IAM role. It is possible to define an empty `iamRoleStatements` for a function and then the function will receive a dedicated role with only the permissions needed for CloudWatch and (if needed) stream events and VPC. Example of defining a function with empty `iamRoleStatements` and configured VPC. The function will receive a custom role with CloudWatch logs permissions and the policy `AWSLambdaVPCAccessExecutionRole`:
 
 ```yaml
 functions:
