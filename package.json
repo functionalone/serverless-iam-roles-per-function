@@ -10,7 +10,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "test-bare": "npm run compile && mocha ./dist/test/**/*.test.js",
-    "test": "nyc mocha --require ts-node/register --require source-map-support/register  ./src/test/**/*.test.ts",
+    "test": "nyc --reporter=lcovonly mocha --require ts-node/register --require source-map-support/register  ./src/test/**/*.test.ts",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "compile": "tsc",
     "watch": "tsc -w",
