@@ -356,6 +356,17 @@ class ServerlessIamPerFunctionPlugin {
         policyStatements.push(s);
       }
     }
+
+    const providerIamRoleManagedPolicies = this.serverless.service.provider.iam
+      ? this.serverless.service.provider.iam.role?.managedPolicies
+      : this.serverless.service.provider.iamManagedPolicies;
+
+    if (isInherit && !_.isEmpty(providerIamRoleManagedPolicies)) {
+      for (const s of providerIamRoleManagedPolicies) {
+        functionIamRole.Properties.ManagedPolicyArns.push(s);
+      }
+    }
+
     // add iamRoleStatements
     if (_.isArray(functionObject.iamRoleStatements)) {
       for (const s of functionObject.iamRoleStatements) {
