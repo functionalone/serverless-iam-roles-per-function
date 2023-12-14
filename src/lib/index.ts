@@ -150,6 +150,12 @@ class ServerlessIamPerFunctionPlugin {
    */
   getFunctionRoleName(functionName: string) {
     const roleName = this.serverless.providers.aws.naming.getRoleName();
+
+    // If serverless-aws-resource-names plugin is configured
+    if (_.get(this.serverless.service, 'custom.serverless-aws-resource-names', false)) {
+      return roleName.replace('lambdaName', functionName);
+    }
+
     const fnJoin = roleName['Fn::Join'];
     if (!_.isArray(fnJoin) || fnJoin.length !== 2 || !_.isArray(fnJoin[1]) || fnJoin[1].length < 2) {
       this.throwError('Global Role Name is not in expected format. Got name: ' + JSON.stringify(roleName));

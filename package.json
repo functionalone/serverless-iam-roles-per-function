@@ -1,5 +1,5 @@
 {
-  "name": "serverless-iam-roles-per-function",
+  "name": "@salemgolemugoo/serverless-iam-roles-per-function",
   "private": false,
   "version": "3.2.0",
   "engines": {
@@ -22,7 +22,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/functionalone/serverless-iam-roles-per-function"
+    "url": "https://github.com/salemgolemugoo/serverless-iam-roles-per-function"
   },
   "keywords": [
     "aws",
