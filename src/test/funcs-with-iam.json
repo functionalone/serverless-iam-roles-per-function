@@ -116,6 +116,23 @@
       "events": [],
       "name": "test-permissions-boundary-hello",
       "package": {}
+    },
+    "helloCustomerManagedPolicy": {
+      "handler": "handler.hello",
+      "iamRoleCreateCustomerManagedPolicy": true,
+      "iamRoleStatements": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "dynamodb:GetItem"
+          ],
+          "Resource": "arn:aws:dynamodb:us-east-1:*:table/test"
+        }
+      ],
+      "events": [],
+      "name": "test-python-dev-hello-customer-managed-policy",
+      "package": {},
+      "vpc": {}
     }
   },
   "resources": {

@@ -377,6 +377,8 @@ describe('plugin tests', function(this: any) {
     beforeEach(() => {
       // set defaultInherit
       _.set(serverless.service, 'custom.serverless-iam-roles-per-function.defaultInherit', true);
+      // set defaultCreateCustomerManagedPolicy
+      _.set(serverless.service, 'custom.serverless-iam-roles-per-function.defaultCreateCustomerManagedPolicy', true);
       // change helloInherit to false for testing
       _.set(serverless.service, 'functions.helloInherit.iamRoleStatementsInherit', false);
       plugin = new Plugin(serverless);
@@ -406,7 +408,9 @@ describe('plugin tests', function(this: any) {
           'HelloIamRoleLambdaExecution',
           'function resource role is set properly',
         );
-        let statements: any[] = helloRole.Properties.Policies[0].PolicyDocument.Statement;
+
+        const helloCustomerManagedPolicy = compiledResources.HelloCustomerManagedPolicy;
+        let statements: any[] = helloCustomerManagedPolicy.Properties.PolicyDocument.Statement;
         assert.isObject(
           statements.find((s) => s.Action[0] === 'xray:PutTelemetryRecords'),
           'global statements imported as defaultInherit is set',
@@ -417,7 +421,9 @@ describe('plugin tests', function(this: any) {
         );
         const helloInheritRole = compiledResources.HelloInheritIamRoleLambdaExecution;
         assertFunctionRoleName('helloInherit', helloInheritRole.Properties.RoleName);
-        statements = helloInheritRole.Properties.Policies[0].PolicyDocument.Statement;
+
+        const helloInheritCustomerManagedPolicy = compiledResources.HelloInheritCustomerManagedPolicy;
+        statements = helloInheritCustomerManagedPolicy.Properties.PolicyDocument.Statement;
         assert.isObject(statements.find((s) => s.Action[0] === 'dynamodb:GetItem'), 'per function statements imported');
         assert.isTrue(statements.find((s) => s.Action[0] === 'xray:PutTelemetryRecords') === undefined,
           'global statements not imported as iamRoleStatementsInherit is false');
@@ -442,6 +448,40 @@ describe('plugin tests', function(this: any) {
         const defaultIamRoleLambdaExecution = compiledResources.IamRoleLambdaExecution;
         const policyName = defaultIamRoleLambdaExecution.Properties.PermissionsBoundary['Fn::Sub'];
         assert.equal(policyName, 'arn:aws:iam::xxxxx:policy/permissions_boundary');
+      })
+
+      it('should add policy document to a Customer Managed Policy', () => {
+        const compiledResources = serverless.service.provider.compiledCloudFormationTemplate.Resources;
+
+        plugin.createRolesPerFunction();
+
+        const helloCustomerManagedPolicyCustomerManagedPolicy =
+          compiledResources.HelloCustomerManagedPolicyCustomerManagedPolicy;
+
+        const managedPolicyName = helloCustomerManagedPolicyCustomerManagedPolicy.Properties.ManagedPolicyName;
+        assert.equal(managedPolicyName, 'test-service-dev-helloCustomerManagedPolicy-us-east-1-policy');
+
+        const policyDocument = helloCustomerManagedPolicyCustomerManagedPolicy.Properties.PolicyDocument;
+        assert.equal(policyDocument.Version, '2012-10-17');
+        assert.lengthOf(policyDocument.Statement, 3);
+        assert.equal(policyDocument.Statement[1].Action[0], 'xray:PutTelemetryRecords');
+        assert.equal(policyDocument.Statement[2].Action[0], 'dynamodb:GetItem');
+
+        const roles = helloCustomerManagedPolicyCustomerManagedPolicy.Properties.Roles;
+        assert.equal(roles[0].Ref, 'HelloCustomerManagedPolicyIamRoleLambdaExecution');
+
+        const helloInheritCustomerManagedPolicy = compiledResources.HelloInheritCustomerManagedPolicy;
+
+        const inheritPolicyName = helloInheritCustomerManagedPolicy.Properties.ManagedPolicyName;
+        assert.equal(inheritPolicyName, 'test-service-dev-helloInherit-us-east-1-policy');
+
+        const inheritPolicyDocument = helloInheritCustomerManagedPolicy.Properties.PolicyDocument;
+        assert.equal(inheritPolicyDocument.Version, '2012-10-17');
+        assert.lengthOf(inheritPolicyDocument.Statement, 2);
+        assert.equal(inheritPolicyDocument.Statement[1].Action[0], 'dynamodb:GetItem');
+
+        const inheritRoles = helloInheritCustomerManagedPolicy.Properties.Roles;
+        assert.equal(inheritRoles[0].Ref, 'HelloInheritIamRoleLambdaExecution');
       })
     });
   });
